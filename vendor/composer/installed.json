@@ -1,0 +1,37 @@
+[
+    {
+        "name": "splitice/radical-basic",
+        "version": "dev-master",
+        "version_normalized": "9999999-dev",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/splitice/radical-basic.git",
+            "reference": "227b98772573f01d78856674107f447ee4d77f81"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/splitice/radical-basic/zipball/227b98772573f01d78856674107f447ee4d77f81",
+            "reference": "227b98772573f01d78856674107f447ee4d77f81",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.4"
+        },
+        "time": "2013-12-12 07:16:08",
+        "type": "library",
+        "installation-source": "source",
+        "autoload": {
+            "psr-0": {
+                "Radical": "src"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "BSD"
+        ],
+        "description": "Basic radical-php functionality",
+        "keywords": [
+            "radical-php"
+        ]
+    }
+]

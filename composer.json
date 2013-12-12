@@ -1,0 +1,19 @@
+{
+  "name" : "splitice/radical-db",
+  "require" : {
+    "php" : ">=5.4",
+    "splitice/radical-basic" : "*"
+  },
+  "repositories" : [ {
+    "type" : "composer",
+    "url" : "https://github.com/splitice/radical-db"
+  } ],
+  "keywords" : [ "radical-php" ],
+  "minimum-stability" : "dev",
+  "autoload" : {
+    "psr-0" : {
+      "Radical" : "src"
+    }
+  },
+  "type" : "library"
+}

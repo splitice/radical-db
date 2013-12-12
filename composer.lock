@@ -1,0 +1,58 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
+    ],
+    "hash": "9f25f4643e4a3b7f87b7ba80952e5110",
+    "packages": [
+        {
+            "name": "splitice/radical-basic",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/splitice/radical-basic.git",
+                "reference": "227b98772573f01d78856674107f447ee4d77f81"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/splitice/radical-basic/zipball/227b98772573f01d78856674107f447ee4d77f81",
+                "reference": "227b98772573f01d78856674107f447ee4d77f81",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.4"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Radical": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD"
+            ],
+            "description": "Basic radical-php functionality",
+            "keywords": [
+                "radical-php"
+            ],
+            "time": "2013-12-12 07:16:08"
+        }
+    ],
+    "packages-dev": [
+
+    ],
+    "aliases": [
+
+    ],
+    "minimum-stability": "dev",
+    "stability-flags": [
+
+    ],
+    "platform": {
+        "php": ">=5.4"
+    },
+    "platform-dev": [
+
+    ]
+}
