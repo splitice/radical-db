@@ -35,7 +35,7 @@ class ConnectionPool {
 	
 	function getAdapter($adapter){
 		foreach($this->pool as $p){
-			if(oneof($p,$adapter))
+			if(\Radical\Core\CoreInterface::oneof($p,$adapter))
 				return $p;
 		}
 	}

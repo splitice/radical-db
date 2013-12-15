@@ -1,10 +1,6 @@
 <?php
 namespace Radical\Database\Model;
 
-use Radical\Database\SQL\ShowCreateTable;
-
-use Radical\Database\SQL\CreateTable;
-
 class DynamicTableInstance {
 	protected $_tableName;
 	protected $_tablePrefix;

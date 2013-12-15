@@ -12,7 +12,6 @@ namespace Radical\Database\SQL\Parts;
  */
 
 use Radical\Database\SQL\Parts\Expression\TableExpression;
-use Radical\Database\SQL\Parts\Alias\TableAlias;
 use Radical\Basic\String\Number;
 use Radical\Database\SQL\Parse\CreateTable;
 use Radical\Database\IToSQL;
@@ -115,7 +114,8 @@ class From extends Internal\MergePartBase {
 					$reference = $relation->getReference();
 						
 					//TODO: Check against other joins
-					if($rightAlias = $this->getTableAlias($reference->getTable())){
+					$rightAlias = $this->getTableAlias($reference->getTable());
+					if($rightAlias){
 						$where = array(array($alias,$relation->getField()),array($rightAlias,$reference->getColumn()));
 					}
 				}

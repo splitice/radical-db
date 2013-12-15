@@ -1,6 +1,6 @@
 <?php
 namespace Radical\Database\Exception;
-use Core\ErrorHandling\Errors\Internal\ErrorBase;
+use Radical\Core\ErrorHandling\Errors\Internal\ErrorBase;
 
 abstract class DatabaseException extends ErrorBase {
 	function __construct($message, $heading = 'Database Error') {

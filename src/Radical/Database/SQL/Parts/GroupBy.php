@@ -7,7 +7,7 @@ use Radical\Basic\Arr;
 
 class GroupBy extends Internal\ArrayPartBase {
 	function _Set($k,$v){
-		if($k === null || \Basic\String\Number::is($k)){
+		if($k === null || \Radical\Basic\String\Number::is($k)){
 			if(is_array($v)){
 				if(Arr::is_assoc($v)){
 					foreach($v as $k=>$vv){

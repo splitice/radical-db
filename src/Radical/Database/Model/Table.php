@@ -12,6 +12,7 @@ use Radical\Database\ORM;
 use Radical\Database\DBAL;
 use Radical\Database\SQL;
 use Radical\Database\SQL\Parts;
+use Radical\Core\CoreInterface;
 
 abstract class Table implements ITable, \JsonSerializable {	
 	const ADAPTER = "MySQL";
@@ -195,7 +196,7 @@ abstract class Table implements ITable, \JsonSerializable {
 		foreach($this->orm->dynamicTyping as $field=>$value){
 			$dT = $value['var'];
 			if($this->$field === null){
-				if(!oneof($dT, '\\Model\\Database\\DynamicTypes\\INullable')){
+				if(!CoreInterface::oneof($dT, '\\Model\\Database\\DynamicTypes\\INullable')){
 					continue;
 				}
 			}
@@ -370,7 +371,7 @@ abstract class Table implements ITable, \JsonSerializable {
 					}
 				}elseif($value instanceof IDynamicType){//Have we been given a dynamic type?
 					$this->$actionPart = $value;
-				}elseif($value !== null || oneof($this->orm->dynamicTyping[$actionPart]['var'], 'Model\Database\DynamicTypes\INullable')){
+				}elseif($value !== null || CoreInterface::oneof($this->orm->dynamicTyping[$actionPart]['var'], 'Model\Database\DynamicTypes\INullable')){
 					$var = $this->orm->dynamicTyping[$actionPart]['var'];
 					$this->$actionPart = $var::fromUserModel($value,$this->orm->dynamicTyping[$actionPart]['extra'],$this);
 				}else{//else set to null
@@ -507,7 +508,8 @@ abstract class Table implements ITable, \JsonSerializable {
 	 */
 	static function fromFields(array $fields){
 		$res = \Radical\DB::Query(static::_fromFields($fields));
-		if($row = $res->Fetch()){
+		$row = $res->Fetch();
+		if($row){
 			return static::fromSQL($row);
 		}
 	}
@@ -561,7 +563,8 @@ abstract class Table implements ITable, \JsonSerializable {
 		}
 		
 		$res = \Radical\DB::Query($sql);
-		if($row = $res->Fetch()){
+		$row = $res->Fetch();
+		if($row){
 			return new static($row);
 		}
 	}

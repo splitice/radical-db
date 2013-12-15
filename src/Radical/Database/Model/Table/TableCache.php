@@ -1,7 +1,7 @@
 <?php
 namespace Radical\Database\Model\Table;
 
-use Utility\Cache\Object\WeakRef;
+use Radical\Cache\Object\WeakRef;
 use Radical\Database\Model\Table;
 
 class TableCache {

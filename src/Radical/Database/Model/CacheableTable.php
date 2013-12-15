@@ -28,7 +28,7 @@ class CacheableTable extends Table {
 	}
 	
 	static function fromId($id){
-		if(\Core\Server::isCLI()){
+		if(\Radical\Core\Server::isCLI()){
 			return parent::fromId($id);
 		}
 		
@@ -49,7 +49,7 @@ class CacheableTable extends Table {
 	}
 	
 	static function getAll($sql = ''){
-		if(\Core\Server::isCLI())
+		if(\Radical\Core\Server::isCLI())
 			return parent::getAll($sql);
 		
 		$obj = static::_getAll($sql);

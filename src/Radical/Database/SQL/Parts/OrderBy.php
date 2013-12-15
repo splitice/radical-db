@@ -5,7 +5,7 @@ use Radical\Basic\Arr;
 
 class OrderBy extends Internal\ArrayPartBase {
 	function _Set($k,$order_by){
-		if($k === null || \Basic\String\Number::is($k)){
+		if($k === null || \Radical\Basic\String\Number::is($k)){
 			if(is_string($order_by)){
 				$this->data[] = $order_by;
 			}elseif($order_by instanceof OrderBy){

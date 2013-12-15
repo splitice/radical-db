@@ -12,6 +12,7 @@ use Radical\Database\SQL\SelectStatement;
 
 use Radical\Database\ORM;
 use Radical\Database\SQL\DeleteStatement;
+use Radical\Core\CoreInterface;
 
 class TableReferenceInstance {
 	protected $class;
@@ -21,14 +22,14 @@ class TableReferenceInstance {
 			$class = get_class($class);
 		}else{
 			if(!class_exists($class)){
-				$class2 = \Core\Libraries::getProjectSpace('DB\\'.$class);
+				$class2 = \Radical\Core\Libraries::getProjectSpace('DB\\'.$class);
 				if(class_exists($class2)){
 					$class = $class2;
 				}else{
 					throw new \Exception($class.' class does not exist');
 				}
 			}
-			if(!oneof($class,'\\Model\\Database\\Model\\ITable')){
+			if(!CoreInterface::oneof($class,'\\Model\\Database\\Model\\ITable')){
 				throw new \Exception($class.' is not a Database Table object');
 			}
 		}

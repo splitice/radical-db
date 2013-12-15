@@ -3,7 +3,6 @@ namespace Radical\Database\SQL\Parts\Expression;
 
 use Radical\Database\DBAL\Instance;
 use Radical\Database\IToSQL;
-use Radical\Database\DBAL\Adapter\IConnection;
 use Radical\Database\SQL\Parts\Internal;
 
 class Between extends Internal\PartBase implements IComparison {

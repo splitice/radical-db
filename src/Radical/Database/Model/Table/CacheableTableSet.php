@@ -1,9 +1,7 @@
 <?php
 namespace Radical\Database\Model\Table;
-use Radical\Database\Search\Adapter\ISearchAdapter;
+
 use Radical\Database\SQL\IStatement;
-use Radical\Database\SQL;
-use Radical\Database\DBAL;
 
 class CacheableTableSet extends TableSet {
 	function __construct(IStatement $sql,$tableClass){

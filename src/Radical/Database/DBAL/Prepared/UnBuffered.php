@@ -1,7 +1,7 @@
 <?php
 namespace Radical\Database\DBAL\Prepared;
 
-use Radical\Database\DBAL\Adapter\PreparedStatement;
+use Radical\Database\DBAL\Adapter\MySQL\PreparedStatement;
 
 class UnBuffered extends Common {
 	function __construct($statement,PreparedStatement $p){

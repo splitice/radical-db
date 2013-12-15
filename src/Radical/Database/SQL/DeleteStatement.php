@@ -1,7 +1,6 @@
 <?php
 namespace Radical\Database\SQL;
 
-use Radical\Database\DBAL\Instance;
 use Radical\Database\SQL\Parts\From;
 
 class DeleteStatement extends Internal\StatementBase {	

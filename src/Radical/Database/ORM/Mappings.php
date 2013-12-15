@@ -64,7 +64,8 @@ class Mappings {
 			
 			//Check if is reference
 			$translated = $this->stripPrefix($databaseField);
-			if($relation = $this->isReference($databaseField)){				
+			$relation = $this->isReference($databaseField);
+			if($relation){				
 				$rTableRef = $relation->getTableReference();
 				if(!$rTableRef){
 					throw new \Exception('No table for reference');
@@ -82,7 +83,7 @@ class Mappings {
 				}
 			}
 		}else{
-			$translated = $name;
+			$translated = $databaseField;
 		}
 		
 		//translate database format (underscores) to objective format (camel case)

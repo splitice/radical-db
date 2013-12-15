@@ -3,7 +3,7 @@ namespace Radical\Database\Model;
 
 class TableReference {	
 	protected static function getClasses(){
-		return \Core\Libraries::get(\Core\Libraries::getProjectSpace('DB\\*'));
+		return \Radical\Core\Libraries::get(\Radical\Core\Libraries::getProjectSpace('DB\\*'));
 	}
 	
 	private static $_name = array();

@@ -1,7 +1,7 @@
 <?php
 namespace Radical\Database\DBAL\Prepared;
 
-use Radical\Database\DBAL\Adapter\PreparedStatement;
+use Radical\Database\DBAL\Adapter\MySQL\PreparedStatement;
 
 abstract class Common {
 	private $statement;

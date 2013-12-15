@@ -12,7 +12,7 @@ class QueryLog {
 	}
 	
 	function addQuery($sql) {
-		if (!\Core\Server::isProduction() && $this->explain) {
+		if (!\Radical\Core\Server::isProduction() && $this->explain) {
 			$this->queries[] = $sql;
 			$this->backtraces[] = debug_backtrace(false);
 		}
