@@ -78,21 +78,7 @@ class MySQLConnection implements IConnection {
 	function isConnected() {
 		if(php_sapi_name() == 'fpm-fcgi') return $this->mysqli;//Web requests are short
 		
-		$ret = false;
-		if($this->_connectHit <= ($t = time())){
-			if($this->_connectCache == \CLI\Threading\Thread::current()){
-				$ret = true;
-			}
-		}
-		if(!$ret){
-			$ret = ($this->mysqli && $this->mysqli->ping());
-		}
-		if($ret){
-			$this->_connectCache = \CLI\Threading\Thread::current();
-			$this->_connectHit = $t+30;//Persume we can hold a connection for 30s
-		}
-		
-		return $ret;
+		return ($this->mysqli && $this->mysqli->ping());
 	}
 	
 	function toInstance(){
