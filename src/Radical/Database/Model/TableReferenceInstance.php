@@ -1,15 +1,10 @@
 <?php
 namespace Radical\Database\Model;
+
 use Radical\Database\SQL\InsertStatement;
-
 use Radical\Database\SQL\UpdateStatement;
-
 use Radical\Database\SQL\UnLockTable;
-
 use Radical\Database\SQL\LockTable;
-
-use Radical\Database\SQL\SelectStatement;
-
 use Radical\Database\ORM;
 use Radical\Database\SQL\DeleteStatement;
 use Radical\Core\CoreInterface;

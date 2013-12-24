@@ -1,7 +1,7 @@
 <?php
 namespace Radical\Database\ORM\DynamicTyping;
 
-use Core\Debug\Inspector;
+use Radical\Core\Debug\Inspector;
 use Radical\Database\Model\TableReferenceInstance;
 
 class Instance {

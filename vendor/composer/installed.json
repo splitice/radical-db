@@ -275,19 +275,19 @@
         "source": {
             "type": "git",
             "url": "https://github.com/splitice/radical-common.git",
-            "reference": "a3812567af5de44224d13f3b2272454c5fdeae40"
+            "reference": "35c18185ad3dc981607a3397ea534ed592e588d0"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/splitice/radical-common/zipball/a3812567af5de44224d13f3b2272454c5fdeae40",
-            "reference": "a3812567af5de44224d13f3b2272454c5fdeae40",
+            "url": "https://api.github.com/repos/splitice/radical-common/zipball/35c18185ad3dc981607a3397ea534ed592e588d0",
+            "reference": "35c18185ad3dc981607a3397ea534ed592e588d0",
             "shasum": ""
         },
         "require": {
             "php": ">=5.4",
             "symfony/filesystem": "2.4.0"
         },
-        "time": "2013-12-15 01:48:24",
+        "time": "2013-12-19 08:20:14",
         "type": "library",
         "installation-source": "source",
         "autoload": {

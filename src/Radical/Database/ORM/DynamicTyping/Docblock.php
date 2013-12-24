@@ -1,7 +1,7 @@
 <?php
 namespace Radical\Database\ORM\DynamicTyping;
 
-use Core\Debug;
+use Radical\Core\Debug;
 
 class Docblock extends Debug\Docblock {
 	/**
