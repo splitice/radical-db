@@ -62,7 +62,6 @@ class TableReference {
 		try {
 			return static::_create($tableClass);
 		}catch(\Exception $ex){
-
 		}
 	}
 }

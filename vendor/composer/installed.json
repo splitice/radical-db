@@ -1,41 +1,5 @@
 [
     {
-        "name": "splitice/radical-basic",
-        "version": "dev-master",
-        "version_normalized": "9999999-dev",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/splitice/radical-basic.git",
-            "reference": "81b8bd282421516414674d541faaaa41bd39da18"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/splitice/radical-basic/zipball/81b8bd282421516414674d541faaaa41bd39da18",
-            "reference": "81b8bd282421516414674d541faaaa41bd39da18",
-            "shasum": ""
-        },
-        "require": {
-            "php": ">=5.4",
-            "splitice/radical-common": "*"
-        },
-        "time": "2013-12-12 10:11:52",
-        "type": "library",
-        "installation-source": "source",
-        "autoload": {
-            "psr-0": {
-                "Radical": "src"
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "BSD"
-        ],
-        "description": "Basic radical-php functionality",
-        "keywords": [
-            "radical-php"
-        ]
-    },
-    {
         "name": "symfony/property-access",
         "version": "dev-master",
         "version_normalized": "9999999-dev",
@@ -43,18 +7,18 @@
         "source": {
             "type": "git",
             "url": "https://github.com/symfony/PropertyAccess.git",
-            "reference": "b309619483ff7958a9d698b00a0c61ad93c2f16c"
+            "reference": "9935cedf9a7d089346475a4805059923fcf15c52"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/symfony/PropertyAccess/zipball/b309619483ff7958a9d698b00a0c61ad93c2f16c",
-            "reference": "b309619483ff7958a9d698b00a0c61ad93c2f16c",
+            "url": "https://api.github.com/repos/symfony/PropertyAccess/zipball/9935cedf9a7d089346475a4805059923fcf15c52",
+            "reference": "9935cedf9a7d089346475a4805059923fcf15c52",
             "shasum": ""
         },
         "require": {
             "php": ">=5.3.3"
         },
-        "time": "2013-11-24 20:17:07",
+        "time": "2013-12-23 14:13:24",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -269,25 +233,61 @@
         "homepage": "http://symfony.com"
     },
     {
+        "name": "splitice/radical-basic",
+        "version": "dev-master",
+        "version_normalized": "9999999-dev",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/splitice/radical-basic.git",
+            "reference": "b41cccfc159f3a72c389c256fdabdfe56a010a9f"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/splitice/radical-basic/zipball/b41cccfc159f3a72c389c256fdabdfe56a010a9f",
+            "reference": "b41cccfc159f3a72c389c256fdabdfe56a010a9f",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.4",
+            "splitice/radical-common": "*"
+        },
+        "time": "2013-12-20 05:08:04",
+        "type": "library",
+        "installation-source": "source",
+        "autoload": {
+            "psr-0": {
+                "Radical": "src"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "BSD"
+        ],
+        "description": "Basic radical-php functionality",
+        "keywords": [
+            "radical-php"
+        ]
+    },
+    {
         "name": "splitice/radical-common",
         "version": "dev-master",
         "version_normalized": "9999999-dev",
         "source": {
             "type": "git",
             "url": "https://github.com/splitice/radical-common.git",
-            "reference": "35c18185ad3dc981607a3397ea534ed592e588d0"
+            "reference": "3ce1b174cc7fcc1116b4c3b71835f1a6dff28d3b"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/splitice/radical-common/zipball/35c18185ad3dc981607a3397ea534ed592e588d0",
-            "reference": "35c18185ad3dc981607a3397ea534ed592e588d0",
+            "url": "https://api.github.com/repos/splitice/radical-common/zipball/3ce1b174cc7fcc1116b4c3b71835f1a6dff28d3b",
+            "reference": "3ce1b174cc7fcc1116b4c3b71835f1a6dff28d3b",
             "shasum": ""
         },
         "require": {
             "php": ">=5.4",
             "symfony/filesystem": "2.4.0"
         },
-        "time": "2013-12-19 08:20:14",
+        "time": "2013-12-24 10:39:16",
         "type": "library",
         "installation-source": "source",
         "autoload": {

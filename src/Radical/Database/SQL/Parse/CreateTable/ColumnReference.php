@@ -1,7 +1,6 @@
 <?php
 namespace Radical\Database\SQL\Parse\CreateTable;
 
-use Radical\Database\Model\TableReferenceInstance;
 use Radical\Database\Model\TableReference;
 
 class ColumnReference{
