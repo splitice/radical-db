@@ -25,7 +25,7 @@ class PreparedStatement implements \ArrayAccess {
 	function execute($mode = self::UNBUFFERED){
 		$this->db->buffer();
 		
-		$class = '\\Model\\Database\\DBAL\\Adapter\\Prepared\\';
+		$class = '\\Radical\\Database\\DBAL\\Adapter\\Prepared\\';
 		if($mode == self::UNBUFFERED){
 			$class .= 'UnBuffered';
 		}elseif($mode == self::UNBUFFERED){

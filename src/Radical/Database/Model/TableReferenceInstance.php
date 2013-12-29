@@ -106,7 +106,7 @@ class TableReferenceInstance {
 	 * @return \Model\Database\SQL\SelectStatement
 	 */
 	function select($fields = '*',$type = ''){
-		$class = '\\Model\\Database\\SQL\\'.$type.'SelectStatement';
+		$class = '\\Radical\\Database\\SQL\\'.$type.'SelectStatement';
 		return new $class($this->getTable(),$fields);
 	}
 	

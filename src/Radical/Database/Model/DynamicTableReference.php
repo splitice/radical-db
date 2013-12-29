@@ -10,7 +10,7 @@ class DynamicTableReference extends TableReferenceInstance {
 	protected $id = array();
 	protected $field = array();
 	
-	function __construct($tableName,$tablePrefix,$class = '\\Database\\Model\\DynamicTableInstance'){
+	function __construct($tableName,$tablePrefix,$class = '\\Radical\\Model\\DynamicTableInstance'){
 		$this->_tableName = $tableName;
 		$this->_tablePrefix = $tablePrefix;
 		$this->class = $class;
