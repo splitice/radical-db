@@ -2,8 +2,6 @@
 namespace Radical\Database\SQL\Parse\Types;
 use Radical\Basic\Validation\IValidator;
 
-use Web\Form\Element;
-
 class Set extends ZZUnknown implements IValidator {
 	const TYPE = 'set';
 	

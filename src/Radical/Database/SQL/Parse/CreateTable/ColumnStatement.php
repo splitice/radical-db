@@ -10,13 +10,13 @@ class ColumnStatement extends Internal\CreateTableStatementBase {
 		parent::__construct($name,$type,$attributes);
 	}
 	
-	function getFormElement(){
+	function getFormElement($type){
 		$reference = $this->relation;
 		if($reference){
 			$reference = $reference->getReference();
 		}
 		
-		$element = $this->type->getFormElement($this->name,$this->default,$reference);
+		$element = $type->getFormElement($this->name,$this->default,$reference);
 		if($this->hasAttribute('AUTO_INCREMENT')){
 			$element->attributes['placeholder'] = 'NULL';
 		}
