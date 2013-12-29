@@ -43,7 +43,7 @@ class Instance {
 		
 		//Prefix if not given
 		if((strpos($var, '\\') === false) || ($var{0} != '\\' && !class_exists($var))){
-			$var = '\\Model\\Database\\DynamicTypes\\'.$var;
+			$var = '\\Radical\\Database\\DynamicTypes\\'.$var;
 		}
 		
 		return compact('var','extra');

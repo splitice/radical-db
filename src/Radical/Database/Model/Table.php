@@ -21,7 +21,7 @@ abstract class Table implements ITable, \JsonSerializable {
 	 * @return \Database\IConnection
 	 */
 	private static function _adapter(){
-		$adapter = '\\Model\\Database\\DBAL\\Adapter\\'.static::ADAPTER;
+		$adapter = '\\Radical\\Database\\DBAL\\Adapter\\'.static::ADAPTER;
 		return \Radical\DB::getConnection($adapter);
 	}
 	
@@ -196,7 +196,7 @@ abstract class Table implements ITable, \JsonSerializable {
 		foreach($this->orm->dynamicTyping as $field=>$value){
 			$dT = $value['var'];
 			if($this->$field === null){
-				if(!CoreInterface::oneof($dT, '\\Model\\Database\\DynamicTypes\\INullable')){
+				if(!CoreInterface::oneof($dT, '\\Radical\\Database\\DynamicTypes\\INullable')){
 					continue;
 				}
 			}
@@ -371,7 +371,7 @@ abstract class Table implements ITable, \JsonSerializable {
 					}
 				}elseif($value instanceof IDynamicType){//Have we been given a dynamic type?
 					$this->$actionPart = $value;
-				}elseif($value !== null || CoreInterface::oneof($this->orm->dynamicTyping[$actionPart]['var'], 'Model\Database\DynamicTypes\INullable')){
+				}elseif($value !== null || CoreInterface::oneof($this->orm->dynamicTyping[$actionPart]['var'], 'Radical\\Database\\DynamicTypes\\INullable')){
 					$var = $this->orm->dynamicTyping[$actionPart]['var'];
 					$this->$actionPart = $var::fromUserModel($value,$this->orm->dynamicTyping[$actionPart]['extra'],$this);
 				}else{//else set to null

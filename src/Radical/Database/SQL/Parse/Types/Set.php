@@ -4,7 +4,7 @@ use Radical\Basic\Validation\IValidator;
 
 use Web\Form\Element;
 
-class Set extends ZZ_Unknown implements IValidator {
+class Set extends ZZUnknown implements IValidator {
 	const TYPE = 'set';
 	
 	function getValues(){

@@ -4,7 +4,7 @@ use Radical\Basic\Validation\IValidator;
 
 use Web\Form\Element;
 
-class Int extends ZZ_Unknown implements IValidator {
+class Int extends ZZUnknown implements IValidator {
 	const TYPE = 'int';
 	
 	static function is($type = null){
