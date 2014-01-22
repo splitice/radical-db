@@ -66,9 +66,12 @@ class Cache {
 		self::$changed = true;
 	}
 	
+	private static $pool;
 	
 	private static $key;
 	static function init(){
+		self::$pool = \Radical\Cache\PooledCache::get('radical_orm','Memory');
+		
 		global $_SQL;
 		$cfile = '/tmp/'.$_SQL->db;
 		if(file_exists($cfile) && filemtime($cfile) >= (time() - 30)){
@@ -79,7 +82,7 @@ class Cache {
 			self::$key = \Radical\DB::Q($sql)->Fetch(Fetch::FIRST);
 			file_put_contents($cfile, self::$key);
 		}
-		self::$data = apc_fetch($_SQL->db.'_'.self::$key);
+		self::$data = self::$pool->get($_SQL->db.'_'.self::$key);
 		if(!is_array(self::$data))
 			self::$data = array();
 		register_shutdown_function(function(){
@@ -89,7 +92,7 @@ class Cache {
 	static function save(){
 		global $_SQL;
 		if(self::$changed){
-			apc_store($_SQL->db.'_'.self::$key, self::$data);
+			self::$pool->set($_SQL->db.'_'.self::$key, self::$data);
 		}
 	}
 }
