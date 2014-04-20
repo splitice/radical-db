@@ -10,7 +10,7 @@ class TableReference {
 	
 	/**
 	 * @param string $tableClass
-	 * @return \Model\Database\Model\TableReferenceInstance
+	 * @return \Radical\Database\Model\TableReferenceInstance
 	 */
 	static function getByTableName($tableName){
 		if(!self::$_name){
@@ -56,7 +56,7 @@ class TableReference {
 	
 	/**
 	 * @param string $tableClass
-	 * @return \Model\Database\Model\TableReferenceInstance
+	 * @return \Radical\Database\Model\TableReferenceInstance
 	 */
 	static function getByTableClass($tableClass){
 		try {

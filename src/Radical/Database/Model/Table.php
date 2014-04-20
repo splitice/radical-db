@@ -36,12 +36,22 @@ abstract class Table implements ITable, \JsonSerializable {
 		
 		return self::$_instance;
 	}
-	
-	private function getId(){
+
+    /**
+     * @return int|string|array
+     */
+    private function getId(){
 		return $this->_getId();
 	}
-	
+
+    /**
+     * @var int|string|array
+     */
 	protected $_id;
+
+    /**
+     * @return int|string|array
+     */
 	function _getId(){
 		//Check if already done
 		if($this->_id !== null){
@@ -461,7 +471,7 @@ abstract class Table implements ITable, \JsonSerializable {
 	 * 
 	 * @param mixed $sql
 	 * @throws \Exception
-	 * @return \Model\Database\Model\Table\TableSet
+	 * @return \Radical\Database\Model\Table\TableSet
 	 */
 	static function getAll($sql = ''){
 		$obj = static::_getAll($sql);
@@ -504,7 +514,7 @@ abstract class Table implements ITable, \JsonSerializable {
 	 * Returns null if nothing found.
 	 * 
 	 * @param array $fields
-	 * @return \Model\Database\Model\Table
+	 * @return \Radical\Database\Model\Table
 	 */
 	static function fromFields(array $fields){
 		$res = \Radical\DB::Query(static::_fromFields($fields));
@@ -526,7 +536,7 @@ abstract class Table implements ITable, \JsonSerializable {
 	 * 
 	 * @param mixed $id
 	 * @throws \Exception
-	 * @return NULL|\Model\Database\Model\Table
+	 * @return NULL|\Radical\Database\Model\Table|static
 	 */
 	static function fromId($id){		
 		$orm = ORM\Manager::getModel(TableReference::getByTableClass(get_called_class()));
@@ -583,7 +593,7 @@ abstract class Table implements ITable, \JsonSerializable {
 	 * 
 	 * @param mixed $res
 	 * @param bool $prefix array is prefixed or not
-	 * @return \Model\Database\Model\Table
+	 * @return \Radical\Database\Model\Table
 	 */
 	static function fromSQL($res,$prefix=false){
 		return new static($res,$prefix);
@@ -594,7 +604,7 @@ abstract class Table implements ITable, \JsonSerializable {
 	}
 	
 	/* (non-PHPdoc)
-	 * @see \Model\Database\Model\ITable::Insert()
+	 * @see \Radical\Database\Model\ITable::Insert()
 	 */
 	function insert($ignore = -1){
 		$this->Validate();
