@@ -26,8 +26,12 @@ class CacheableTable extends Table {
 	public function getIdKey(){
 		return static::_idString($this->getId());
 	}
-	
-	static function fromId($id){
+
+    /**
+     * @param mixed $id
+     * @return static
+     */
+    static function fromId($id){
 		if(\Radical\Core\Server::isCLI()){
 			return parent::fromId($id);
 		}
@@ -47,7 +51,8 @@ class CacheableTable extends Table {
 		
 		return $ret;
 	}
-	
+
+
 	static function getAll($sql = ''){
 		if(\Radical\Core\Server::isCLI())
 			return parent::getAll($sql);

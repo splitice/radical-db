@@ -38,13 +38,6 @@ abstract class Table implements ITable, \JsonSerializable {
 	}
 
     /**
-     * @return int|string|array
-     */
-    private function getId(){
-		return $this->_getId();
-	}
-
-    /**
      * @var int|string|array
      */
 	protected $_id;
@@ -105,8 +98,11 @@ abstract class Table implements ITable, \JsonSerializable {
 		}
 		return $keys;
 	}
-	
-	function refreshTableData(){
+
+    /**
+     * @return static
+     */
+    function refreshTableData(){
 		return static::fromId(static::getIdentifyingSQL());
 	}
 	function setSQLField($field,$value){
@@ -159,7 +155,7 @@ abstract class Table implements ITable, \JsonSerializable {
 			}
 		}
 		if(!$object && is_object($ret) && !($ret instanceof IDynamicType)){
-			$ret = $ret->getId();
+			$ret = $ret->_getId();
 		}
 		return $ret;
 	}
@@ -305,7 +301,7 @@ abstract class Table implements ITable, \JsonSerializable {
 	}
 	
 	function __toString(){
-		$id = $this->getId();
+		$id = $this->_getId();
 		if(is_array($id)) $id = implode('|',$id);
 		return $id;
 	}
@@ -317,7 +313,7 @@ abstract class Table implements ITable, \JsonSerializable {
 			if(isset($a[0]) && $a[0] == 'id'){
 				$ret = &$this->$actionPart;
 				if(is_object($ret)){
-					$ret = $this->getId();
+					$ret = $this->_getId();
 				}
 			}else{
 				$this->$actionPart = $class::fromId($this->$actionPart);
@@ -337,7 +333,13 @@ abstract class Table implements ITable, \JsonSerializable {
 	function _related_cache_get(){
 		
 	}
-	protected function call_get_related($className){
+
+    /**
+     * @param $className
+     * @throws \BadMethodCallException
+     * @returns \Radical\Database\Model\Table\TableSet
+     */
+    protected function call_get_related($className){
 		//Cacheable table provides this
 		$ret = $this->_related_cache_get($className);
 		if($ret !== null){
@@ -514,7 +516,7 @@ abstract class Table implements ITable, \JsonSerializable {
 	 * Returns null if nothing found.
 	 * 
 	 * @param array $fields
-	 * @return \Radical\Database\Model\Table
+     * @return static
 	 */
 	static function fromFields(array $fields){
 		$res = \Radical\DB::Query(static::_fromFields($fields));
@@ -536,7 +538,7 @@ abstract class Table implements ITable, \JsonSerializable {
 	 * 
 	 * @param mixed $id
 	 * @throws \Exception
-	 * @return NULL|\Radical\Database\Model\Table|static
+	 * @return static
 	 */
 	static function fromId($id){		
 		$orm = ORM\Manager::getModel(TableReference::getByTableClass(get_called_class()));
@@ -593,13 +595,16 @@ abstract class Table implements ITable, \JsonSerializable {
 	 * 
 	 * @param mixed $res
 	 * @param bool $prefix array is prefixed or not
-	 * @return \Radical\Database\Model\Table
+	 * @return static
 	 */
 	static function fromSQL($res,$prefix=false){
 		return new static($res,$prefix);
 	}
-	
-	static function new_empty(){
+
+    /**
+     * @return static
+     */
+    static function new_empty(){
 		return new static(array());
 	}
 	
@@ -646,7 +651,13 @@ abstract class Table implements ITable, \JsonSerializable {
 	static function exists(){
 		return \Radical\DB::tableExists($this->orm->tableInfo['name']);
 	}
-	static function create($data,$prefix=false){
+
+    /**
+     * @param $data
+     * @param bool $prefix
+     * @return static
+     */
+    static function create($data,$prefix=false){
 		$res = static::fromSQL($data,$prefix);
 		$res->Insert();
 		return $res;
