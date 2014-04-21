@@ -4,6 +4,14 @@ use Radical\Basic\Validation\IValidator;
 
 class Enum extends Internal\TypeBase implements IValidator {
 	const TYPE = 'enum';
+
+    static function is($type = null){
+        switch($type){
+            case self::TYPE:
+                return true;
+        }
+        return false;
+    }
 	
 	function getOptions(){
 		$ret = array();

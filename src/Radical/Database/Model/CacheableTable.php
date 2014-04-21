@@ -53,7 +53,11 @@ class CacheableTable extends Table {
 	}
 
 
-	static function getAll($sql = ''){
+    /**
+     * @param string $sql
+     * @return Table\CacheableTableSet|Table\TableSet|static[]
+     */
+    static function getAll($sql = ''){
 		if(\Radical\Core\Server::isCLI())
 			return parent::getAll($sql);
 		

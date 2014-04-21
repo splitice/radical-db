@@ -3,6 +3,11 @@ namespace Radical\Database\DBAL;
 
 use Radical\Basic\Cast\ICast;
 
+/**
+ * Class Result
+ * @package Radical\Database\DBAL
+ * @property $num_rows
+ */
 class Result {
 	public $result;
 	public $affected_rows;

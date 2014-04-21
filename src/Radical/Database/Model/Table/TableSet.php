@@ -9,12 +9,12 @@ use Radical\Database\SQL;
 
 class TableSet extends \Radical\Basic\Arr\Object\IncompleteObject {
 	/**
-	 * @var \Model\Database\SQL\IStatement
+	 * @var SQL\SelectStatement
 	 */
 	public $sql;
 	public $tableClass;
 	
-	function __construct(IStatement $sql,$tableClass){
+	function __construct(SQL\SelectStatement $sql,$tableClass){
 		$this->sql = $sql;
 		$this->tableClass = $tableClass;
 	}

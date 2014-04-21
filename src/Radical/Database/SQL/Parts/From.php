@@ -22,27 +22,27 @@ class From extends Internal\MergePartBase {
 	protected $joins = array();
 	
 	/**
-	 * @var \Model\Database\SQL\Parts\Where
+	 * @var \Radical\Database\SQL\Parts\Where
 	 */
 	protected $where;
 	
 	/**
-	 * @var \Model\Database\SQL\Parts\GroupBy
+	 * @var \Radical\Database\SQL\Parts\GroupBy
 	 */
 	protected $group_by;
 	
 	/**
-	 * @var \Model\Database\SQL\Parts\Having
+	 * @var \Radical\Database\SQL\Parts\Having
 	 */
 	protected $having;
 	
 	/**
-	 * @var \Model\Database\SQL\Parts\OrderBy
+	 * @var \Radical\Database\SQL\Parts\OrderBy
 	 */
 	protected $order_by;
 	
 	/**
-	 * @var \Model\Database\SQL\Parts\Limit
+	 * @var \Radical\Database\SQL\Parts\Limit
 	 */
 	protected $limit;
 	
@@ -191,7 +191,7 @@ class From extends Internal\MergePartBase {
 	
 	/**
 	 * @param mixed $group
-	 * @return \Model\Database\SQL\Parts\From
+	 * @return \Radical\Database\SQL\Parts\From
 	 */
 	function group_by($group){
 		return $this->group($group);
@@ -204,7 +204,7 @@ class From extends Internal\MergePartBase {
 	 * 
 	 * @param mixed $order_by
 	 * @throws \Exception
-	 * @return \Model\Database\SQL\Parts\OrderBy|\Database\SQL\Parts\From
+	 * @return \Radical\Database\SQL\Parts\OrderBy|\Database\SQL\Parts\From
 	 */
 	function order_by($order_by = null,$order = null){
 		if($order_by === null) return $this->order_by;
@@ -217,7 +217,7 @@ class From extends Internal\MergePartBase {
 	}
 	
 	/**
-	 * \Model\Database\SQL\Parts\Limit,null = $limit
+	 * \Radical\Database\SQL\Parts\Limit,null = $limit
 	 * int,int = $start,$end
 	 * null,int = $start,$end
 	 * int,null = $end
@@ -227,7 +227,7 @@ class From extends Internal\MergePartBase {
 	 * @param mixed $start
 	 * @param int $end
 	 * @throws \Exception
-	 * @return \Model\Database\SQL\Parts\Limit|\Database\SQL\Parts\From
+	 * @return \Radical\Database\SQL\Parts\Limit|\Database\SQL\Parts\From
 	 */
 	function limit($start = null,$end = null){
 		if($start == null && $end == null){

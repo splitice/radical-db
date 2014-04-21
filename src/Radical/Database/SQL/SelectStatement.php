@@ -47,8 +47,12 @@ class SelectStatement extends Internal\StatementBase {
 		
 		$this->fields($fields);
 	}
-	
-	function fields($fields = null){
+
+    /**
+     * @param mixed $fields
+     * @return SelectStatement
+     */
+    function fields($fields = null){
 		if($fields === null){
 			return $this->fields;
 		}else{
@@ -59,7 +63,11 @@ class SelectStatement extends Internal\StatementBase {
 		}
 		return $this;
 	}
-	
+
+    /**
+     * @param mixed $returned
+     * @return SelectStatement
+     */
 	private function _R($returned){
 		//Ensure chaining is to the right object (Encapsulation)
 		if($returned === $this->from) return $this;
@@ -87,23 +95,44 @@ class SelectStatement extends Internal\StatementBase {
 	function joins(){
 		return $this->_R($this->from->joins());
 	}
-	
-	function where($where = null){
+
+    /**
+     * @param mixed $where
+     * @return SelectStatement
+     */
+    function where($where = null){
 		return $this->_R($this->from->where($where));
 	}
+    /**
+     * @param mixed $where
+     * @return SelectStatement
+     */
 	function where_and($where){
 		return $this->_R($this->from->where_and($where));
 	}
+    /**
+     * @param mixed $where
+     * @return SelectStatement
+     */
 	function where_or($where){
 		return $this->_R($this->from->where_or($where));
 	}
-	
+
+    /**
+     * @param mixed $group
+     * @return SelectStatement
+     */
 	function group($group = null){
 		return $this->_R($this->from->group(func_get_args()));
 	}
+    /**
+     * @param mixed $group
+     * @return SelectStatement
+     */
 	function group_by($group){
 		return $this->group($group);
 	}
+
 	function order_by($order_by,$order = null){
 		return $this->_R($this->from->order_by($order_by,$order));
 	}

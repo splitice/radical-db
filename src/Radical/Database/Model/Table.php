@@ -18,7 +18,7 @@ abstract class Table implements ITable, \JsonSerializable {
 	const ADAPTER = "MySQL";
 	
 	/**
-	 * @return \Database\IConnection
+	 * @return \Radical\Database\DBAL\Adapter\IConnection
 	 */
 	private static function _adapter(){
 		$adapter = '\\Radical\\Database\\DBAL\\Adapter\\'.static::ADAPTER;
@@ -455,7 +455,7 @@ abstract class Table implements ITable, \JsonSerializable {
 	 * or all if $sql is left blank.
 	 * 
 	 * $sql can be an array() of tablecolumns e.g post_id
-	 * $sql can be an instance of \Model\Database\SQL\Parts\Where
+	 * $sql can be an instance of \Radical\Database\SQL\Parts\Where
 	 * $sql can be any class that implements IToSQL including a query built with the query builder
 	 * 
 	 * ```
@@ -473,7 +473,7 @@ abstract class Table implements ITable, \JsonSerializable {
 	 * 
 	 * @param mixed $sql
 	 * @throws \Exception
-	 * @return \Radical\Database\Model\Table\TableSet
+	 * @return \Radical\Database\Model\Table\TableSet|static[]
 	 */
 	static function getAll($sql = ''){
 		$obj = static::_getAll($sql);
@@ -568,7 +568,7 @@ abstract class Table implements ITable, \JsonSerializable {
 			}else{
 				//Input = String, Needed Array
 				if(count($orm->id) > 1){
-					throw new \Exception('Needs more than one value for the ID of '.$this->orm->tableInfo['name']);
+					throw new \Exception('Needs more than one value for the ID of '.$orm->tableInfo['name']);
 				}
 				$sql->where(array($idk[0]=>$id));
 			}
@@ -649,7 +649,7 @@ abstract class Table implements ITable, \JsonSerializable {
 	}
 	
 	static function exists(){
-		return \Radical\DB::tableExists($this->orm->tableInfo['name']);
+		return \Radical\DB::tableExists(static::TABLE);
 	}
 
     /**

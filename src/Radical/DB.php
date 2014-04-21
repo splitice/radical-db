@@ -151,7 +151,7 @@ class DB extends DBAL\SQLUtils {
 	 *
 	 * @param string $sql
 	 * @param int $timeout
-	 * @return Ambigous <resource, \Model\Database\NOT_A_RESULT, string, unknown>
+	 * @return \Radical\Database\DBAL\Result
 	 */
 	static function q($sql,$timeout=DBAL\Instance::QUERY_TIMEOUT){
 		return static::__callStatic(__FUNCTION__, func_get_args());

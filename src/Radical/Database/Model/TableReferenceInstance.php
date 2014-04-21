@@ -103,7 +103,7 @@ class TableReferenceInstance {
 		return false;
 	}
 	/**
-	 * @return \Model\Database\SQL\SelectStatement
+	 * @return \Radical\Database\SQL\SelectStatement
 	 */
 	function select($fields = '*',$type = ''){
 		$class = '\\Radical\\Database\\SQL\\'.$type.'SelectStatement';
