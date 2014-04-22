@@ -139,8 +139,8 @@ class DB extends DBAL\SQLUtils {
 	/**
 	 * Execute MySQL query
 	 * @param string $sql
-	 * @throws \Model\Database\Exception\QueryError
-	 * @return \Model\Database\DBAL\Result
+	 * @throws \Radical\Database\Exception\QueryError
+	 * @return \Radical\Database\DBAL\Result
 	 */
 	static function query($sql,$timeout=DBAL\Instance::QUERY_TIMEOUT,$is_retry=false) {
 		return static::__callStatic(__FUNCTION__, func_get_args());
