@@ -247,7 +247,7 @@ abstract class Table implements ITable, \JsonSerializable {
 	}
 	
 	function update(){
-        $this->call_action("before_update");
+        $this->call_action("update_before");
 		$this->Validate();
 		$identifying = $this->getIdentifyingSQL();
 		$values = $this->toSQL();
@@ -269,13 +269,13 @@ abstract class Table implements ITable, \JsonSerializable {
 		if(count($values))
 			\Radical\DB::Update($this->orm->tableInfo['name'], $values, $identifying);
 
-        $this->call_action("after_update");
+        $this->call_action("update_after");
 	}
 	
 	function delete(){
-        $this->call_action("before_delete");
+        $this->call_action("delete_before");
 		\Radical\DB::Delete($this->orm->tableInfo['name'], $this->getIdentifyingSQL());
-        $this->call_action("after_delete");
+        $this->call_action("delete_after");
 	}
 	
 	public function __sleep()
@@ -624,7 +624,7 @@ abstract class Table implements ITable, \JsonSerializable {
 	 * @see \Radical\Database\Model\ITable::Insert()
 	 */
 	function insert($ignore = -1){
-        $this->call_action("before_insert");
+        $this->call_action("insert_before");
 		$this->Validate();
 		
 		if($ignore instanceof InsertBuffer){
@@ -660,7 +660,7 @@ abstract class Table implements ITable, \JsonSerializable {
 			}
 		}
 
-        $this->call_action("after_insert");
+        $this->call_action("insert_after");
 	}
 	
 	static function exists(){
