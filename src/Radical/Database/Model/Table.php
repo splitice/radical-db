@@ -13,8 +13,11 @@ use Radical\Database\DBAL;
 use Radical\Database\SQL;
 use Radical\Database\SQL\Parts;
 use Radical\Core\CoreInterface;
+use Splitice\EventTrait\THookable;
 
-abstract class Table implements ITable, \JsonSerializable {	
+abstract class Table implements ITable, \JsonSerializable {
+    use THookable;
+
 	const ADAPTER = "MySQL";
 	
 	/**
@@ -177,6 +180,7 @@ abstract class Table implements ITable, \JsonSerializable {
 	public $orm;
 	protected $_store = array();
 	function __construct($in = array(),$prefix = false){
+        $this->hookInit();
 		//Setup object with table specific data
 		$table = TableReference::getByTableClass($this);
 		$this->orm = $table->getORM();
@@ -243,6 +247,7 @@ abstract class Table implements ITable, \JsonSerializable {
 	}
 	
 	function update(){
+        $this->call_action("before_update");
 		$this->Validate();
 		$identifying = $this->getIdentifyingSQL();
 		$values = $this->toSQL();
@@ -263,10 +268,14 @@ abstract class Table implements ITable, \JsonSerializable {
 		
 		if(count($values))
 			\Radical\DB::Update($this->orm->tableInfo['name'], $values, $identifying);
+
+        $this->call_action("after_update");
 	}
 	
 	function delete(){
+        $this->call_action("before_delete");
 		\Radical\DB::Delete($this->orm->tableInfo['name'], $this->getIdentifyingSQL());
+        $this->call_action("after_delete");
 	}
 	
 	public function __sleep()
@@ -372,6 +381,8 @@ abstract class Table implements ITable, \JsonSerializable {
 		return array_keys($this->orm->reverseMappings);
 	}
 	private function call_set_value($actionPart,$value){
+        $hookData = array('actionPart' => $actionPart, 'value' => $value);
+        $this->call_action('call_set_before', $hookData);
 		if(isset($this->orm->reverseMappings[$actionPart])){		
 			//Is this key a dynamic type?
 			if(isset($this->orm->dynamicTyping[$actionPart])){
@@ -392,6 +403,7 @@ abstract class Table implements ITable, \JsonSerializable {
 			}else{
 				$this->$actionPart = $value;
 			}
+            $this->call_action('call_set_after', $hookData);
 			return $this;
 		}else{
 			throw new \BadMethodCallException('no field exists for set call');
@@ -612,6 +624,7 @@ abstract class Table implements ITable, \JsonSerializable {
 	 * @see \Radical\Database\Model\ITable::Insert()
 	 */
 	function insert($ignore = -1){
+        $this->call_action("before_insert");
 		$this->Validate();
 		
 		if($ignore instanceof InsertBuffer){
@@ -646,6 +659,8 @@ abstract class Table implements ITable, \JsonSerializable {
 				$this->_store[$autoInc] = $id;
 			}
 		}
+
+        $this->call_action("after_insert");
 	}
 	
 	static function exists(){
