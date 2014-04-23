@@ -672,9 +672,9 @@ abstract class Table implements ITable, \JsonSerializable {
      * @param bool $prefix
      * @return static
      */
-    static function create($data,$prefix=false){
+    static function create($data,$prefix=false,$insert=-1){
 		$res = static::fromSQL($data,$prefix);
-		$res->Insert();
+		$res->Insert($insert);
 		return $res;
 	}
 }
