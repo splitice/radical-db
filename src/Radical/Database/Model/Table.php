@@ -329,7 +329,11 @@ abstract class Table implements ITable, \JsonSerializable {
 			}
 		}
 		if(isset($a[0]) && $a[0] == 'id' && is_object($this->$actionPart)){
-			$ret = $this->$actionPart->getId();
+            if($this->$actionPart instanceof Table){
+			    $ret = $this->$actionPart->getId();
+            }else{
+                $ret = (string)$this->$actionPart;
+            }
 		}else{
 			$ret = &$this->$actionPart;
 		}

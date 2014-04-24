@@ -64,13 +64,19 @@ class InsertStatement extends Internal\StatementBase {
 			$keys = array_keys ( $this->values );
 			$values = array($this->values);
 		}
-		$sql .= 'INTO `' . $this->table . '` (`' . implode ( '`,`', $keys) . '`) VALUES';
+		$sql .= 'INTO `' . $this->table . '` ';
+
+        if(count($keys))
+            $sql .= '(`' . implode ( '`,`', $keys) . '`)';
+
+        $sql .= ' VALUES';
 		
 		foreach($values as $k=>$v){
 			$sql .= ($k!=0?',':'').'(' . \Radical\DB::A ( $v ) . ')';
 		}
-		
-		$sql .= $append;
+
+        if(count($keys))
+		    $sql .= $append;
 		
 		$this->sql = $sql;
 		return $sql;
