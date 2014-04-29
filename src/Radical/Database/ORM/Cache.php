@@ -1,6 +1,7 @@
 <?php
 namespace Radical\Database\ORM;
 
+use Radical\Core\Server;
 use Radical\Database\Model\TableReferenceInstance;
 use Radical\Database\DBAL\Fetch;
 
@@ -82,12 +83,15 @@ class Cache {
 			self::$key = \Radical\DB::Q($sql)->Fetch(Fetch::FIRST);
 			file_put_contents($cfile, self::$key);
 		}
-		self::$data = self::$pool->get($_SQL->db.'_'.self::$key);
-		if(!is_array(self::$data))
-			self::$data = array();
-		register_shutdown_function(function(){
-			Cache::save();
-		});
+        if(Server::isProduction()){
+            self::$data = self::$pool->get($_SQL->db.'_'.self::$key);
+            register_shutdown_function(function(){
+                Cache::save();
+            });
+        }
+
+        if(!is_array(self::$data))
+            self::$data = array();
 	}
 	static function save(){
 		global $_SQL;

@@ -222,7 +222,7 @@ abstract class Table implements ITable, \JsonSerializable {
 			if(isset($this->$mapped)){
 				$v = $this->$mapped;
 				if(is_object($v) && isset($this->orm->relations[$k])){
-					$v = $v->getSQLField($k);
+					$v = $v->getSQLField($this->orm->relations[$k]->getColumn());
 				}
 				if(is_object($v) && $v instanceof IDynamicType){
 					$v = (string)$v;

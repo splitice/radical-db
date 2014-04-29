@@ -297,4 +297,9 @@ class From extends Internal\MergePartBase {
 		
 		return $ret;
 	}
+
+    function __clone(){
+        if($this->where)
+            $this->where = clone $this->where;
+    }
 }

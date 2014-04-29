@@ -2,9 +2,14 @@
 namespace Radical\Database\ORM;
 
 use Radical\Database\Model\TableReference;
+use Radical\Database\Model\TableReferenceInstance;
 
 class ModelReference {
-	static function find($field){
+    /**
+     * @param $field
+     * @return TableReferenceInstance
+     */
+    static function find($field){
 		$prefixLen = 0;
 		$ref = null;
 		foreach(TableReference::getAll() as $table){

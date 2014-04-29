@@ -10,6 +10,7 @@ class ModelData {
 	public $reverseMappings;
 	public $fields;
 	public $relations = array();//$this -> $other
+    public $relationReverseMappings = array();//$other -> $this
 	public $references = array();//$other -> $this
 	public $id;
 	public $validation;
@@ -29,6 +30,6 @@ class ModelData {
 		}
 		
 		//Return a Mapping Manager
-		return new Mappings($this,$structure);
+		return new Mappings($this->tableInfo,$structure);
 	}
 }

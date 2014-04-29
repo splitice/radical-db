@@ -36,7 +36,11 @@ SELECT
 
 class SelectStatement extends Internal\StatementBase {
 	protected $fields = array();
-	protected $from;
+
+    /**
+     * @var From
+     */
+    protected $from;
 	
 	
 	function __construct($table = null, $fields = '*'){
@@ -152,7 +156,8 @@ class SelectStatement extends Internal\StatementBase {
 	}
 	
 	function __clone(){
-		$this->from = clone $this->from;
+        if($this->from)
+		    $this->from = clone $this->from;
 	}
 	
 	function getCount(){

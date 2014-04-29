@@ -7,20 +7,20 @@ use Radical\Database\SQL\Parse\CreateTable;
 
 class Mappings {
 	/**
-	 * @var Model
+	 * @var array
 	 */
-	private $model;
+	private $tableInfo;
 	/**
 	 * @var \Radical\Database\SQL\Parse\CreateTable
 	 */
 	private $structure;
 	
-	function __construct(ModelData $model,CreateTable $structure){
-		$this->model = $model;
+	function __construct(array $tableInfo, CreateTable $structure){
+		$this->tableInfo = $tableInfo;
 		$this->structure = $structure;
 	}
 	function stripPrefix($databaseField){
-		$tblPrefix = $this->model->tableInfo['prefix'];
+		$tblPrefix = $this->tableInfo['prefix'];
 		$pLen = strlen($tblPrefix);
 		$nLen = strlen($databaseField);
 		if($nLen > $pLen){
@@ -47,7 +47,7 @@ class Mappings {
 		}
 		
 		$ref = ModelReference::Find($databaseField);
-		if($ref == $this->model->table){
+		if($ref->getName() == $this->tableInfo['name']){
 			return false;
 		}
 		return new ColumnReference($ref->getTable(), $databaseField);
@@ -73,7 +73,7 @@ class Mappings {
 				
 				if(!$translated){				
 					$rInfo = $rTableRef->Info();
-					if($rInfo['name'] == $this->model->tableInfo['name']) $translated = $this->stripPrefix($databaseField);
+					if($rInfo['name'] == $this->tableInfo['name']) $translated = $this->stripPrefix($databaseField);
 					else $translated = rtrim($rInfo['prefix'],'_');
 				}
 			}else{
@@ -109,7 +109,7 @@ class Mappings {
 		
 		//Add prefix if wanted
 		if($prefix){
-			$objectiveField = $this->model->tableInfo['prefix'].$objectiveField;
+			$objectiveField = $this->tableInfo['prefix'].$objectiveField;
 		}
 	}
 	function translationArray(){

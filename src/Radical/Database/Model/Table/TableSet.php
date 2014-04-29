@@ -71,4 +71,7 @@ class TableSet extends \Radical\Basic\Arr\Object\IncompleteObject {
 			
 		return $this->count;
 	}
+    function __clone(){
+        $this->sql = clone $this->sql;
+    }
 }

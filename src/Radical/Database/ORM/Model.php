@@ -35,7 +35,10 @@ class Model extends ModelData {
 		//build relation array
 		if($this->engine == 'innodb'){
 			foreach($structure->relations as $r){
-				$this->relations[$r->getField()] = $r->getReference();
+                $reference = $r->getReference();
+				$this->relations[$r->getField()] = $reference;
+                //$mapper = new Mappings($reference->getTableReference()->info(),CreateTable::fromTable($reference->getTable()));
+                //$this->relationReverseMappings[$r->getField()] = $mapper->translateToObjective($reference->getColumn());
 			}
 		}elseif($this->engine == 'myisam'){
 			$this->relations = MyIsam::fieldReferences($structure,$this->table);
