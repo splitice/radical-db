@@ -1,8 +1,9 @@
 <?php
 namespace Radical\Database\SQL\Parse\Types;
 use Radical\Basic\Validation\IValidator;
+use Radical\Database\SQL\Parse\Types\Internal\IPHPDoctype;
 
-class Int extends ZZUnknown implements IValidator {
+class Int extends ZZUnknown implements IValidator, IPHPDoctype {
 	const TYPE = 'int';
 	
 	static function is($type = null){
@@ -22,4 +23,8 @@ class Int extends ZZUnknown implements IValidator {
 		}
 		return $this->_Validate($value);
 	}
+
+    function getPhpdocType(){
+        return 'numeric';
+    }
 }

@@ -1,8 +1,9 @@
 <?php
 namespace Radical\Database\SQL\Parse\Types;
 use Radical\Basic\Validation\IValidator;
+use Radical\Database\SQL\Parse\Types\Internal\IPHPDoctype;
 
-class Varchar extends ZZUnknown implements IValidator {
+class Varchar extends ZZUnknown implements IValidator, IPHPDoctype {
 	const TYPE = 'varchar';
 
     static function is($type = null){
@@ -16,4 +17,8 @@ class Varchar extends ZZUnknown implements IValidator {
 	function validate($value){
 		return (strlen($value) <= $this->size) || $this->_Validate($value);
 	}
+
+    function getPhpdocType(){
+        return 'string';
+    }
 }
