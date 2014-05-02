@@ -10,9 +10,11 @@ abstract class TypeBase {
 	protected $type;
 	protected $size;
 	protected $null = false;
-	function __construct($type,$size){
+    protected $default;
+	function __construct($type,$size,$default = null){
 		$this->type = $type;
 		$this->size = $size;
+        $this->default = $default;
 	}
 	
 	function canNull($null){
@@ -32,6 +34,14 @@ abstract class TypeBase {
 	public function getSize() {
 		return $this->size;
 	}
+
+    /**
+     * @return null|string
+     */
+    public function getDefault()
+    {
+        return $this->default;
+    }
 	
 	function _Validate($value){
 		if($value === null && $this->null) return true;

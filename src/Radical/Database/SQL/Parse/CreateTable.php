@@ -25,7 +25,7 @@ class CreateTable extends CollectionObject {
 		
 		$_matches = array();
 		//$sql = preg_replace('#\)([^\)]+)$#', ';$1', $sql);
-		preg_match_all("/^\\s*(CONSTRAINT|KEY)?\\s*`([^`]+)`\\s*([^\\(^\\,^$]*)(?:\\(\\s*([^\\)]*)\\s*\\))?([^\\,^\\;]*)(?:\\,|$)/m", $sql, $_matches, PREG_SET_ORDER);
+		preg_match_all('/^\s*(CONSTRAINT|KEY)?\s*`([^`]+)`\s*([^\(^\,^$^\s]*)(?:\(\s*([^\)]*)\s*\))?([^\,^\;]*)(?:\,|$)/m', $sql, $_matches, PREG_SET_ORDER);
 		foreach($_matches as $m){
 			$special = $m[1];
 			$attributes = trim($m[5]);

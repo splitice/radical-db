@@ -232,6 +232,14 @@ abstract class Table implements ITable, \JsonSerializable {
 		}
 		return $ret;
 	}
+
+    function isDefault($field){
+        if(!isset($this->orm->reverseMappings[$field])){
+            throw new \InvalidArgumentException('$field is not valid');
+        }
+        $mapped =  $this->orm->reverseMappings[$field];
+        return $this->orm->validation->is_default($mapped, $this->call_get_member($field,array('id')));
+    }
 	
 	function toExport(){
 		$data = $this->toSQL();

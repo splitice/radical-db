@@ -3,10 +3,17 @@ namespace Radical\Database\SQL\Parse\CreateTable;
 use Radical\Database\SQL\Parse\DataType;
 
 class ColumnStatement extends Internal\CreateTableStatementBase {
-	protected $default;
-	
 	function __construct($name,$type,$size,$attributes) {
-		$type = DataType::fromSQL($type,$size);
+        $default = null;
+        if(preg_match('#DEFAULT (\')([^\']+)\'#', $attributes, $m)){
+            if($m[1] != '\'' && $m[2] == 'NULL'){
+                $default = null;
+            }else{
+                $default = $m[2];
+            }
+        }
+
+		$type = DataType::fromSQL($type,$size,$default);
 		parent::__construct($name,$type,$attributes);
 	}
 	

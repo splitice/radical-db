@@ -18,6 +18,7 @@ abstract class CreateTableStatementBase {
 				$attributes = str_replace($a,'',$attributes);
 			}
 		}
+
 		$this->attributes = $aattributes;
 		if(is_object($type)){
 			$type->canNull(!$this->hasAttribute('NOT NULL'));
