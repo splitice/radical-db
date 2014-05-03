@@ -300,6 +300,8 @@ abstract class Table implements ITable, \JsonSerializable {
 	
 	public function __wakeup()
 	{
+        $this->hookInit();
+
 		//Recreate ORM
 		$table = TableReference::getByTableClass($this);
 		$this->orm = $table->getORM();
