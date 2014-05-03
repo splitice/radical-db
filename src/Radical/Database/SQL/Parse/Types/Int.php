@@ -25,6 +25,6 @@ class Int extends ZZUnknown implements IValidator, IPHPDoctype {
 	}
 
     function getPhpdocType(){
-        return 'numeric';
+        return 'int';
     }
 }
