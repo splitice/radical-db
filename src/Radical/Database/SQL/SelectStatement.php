@@ -41,9 +41,13 @@ class SelectStatement extends Internal\StatementBase {
      * @var From
      */
     protected $from;
-	
-	
-	function __construct($table = null, $fields = '*'){
+
+
+    /**
+     * @param null $table
+     * @param string|string[] $fields
+     */
+    function __construct($table = null, $fields = '*'){
 		if($table !== null && !is_array($table)){
 			$table = array($table);
 		}
