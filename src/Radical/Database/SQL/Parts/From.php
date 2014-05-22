@@ -176,6 +176,32 @@ class From extends Internal\MergePartBase {
 		$where[] = new WhereOR($or);
 		return $this;
 	}
+
+    function having($having = null){
+        if($having === null){
+            if($this->having === null) $this->having = new Having();
+            return $this->having;
+        }else{
+            if(is_string($having)){
+                $having = array($having);
+            }
+            if(is_array($having) || !($having instanceof Having)){
+                $this->having = new Having($having);
+            }else
+                $this->having = $having;
+        }
+        return $this;
+    }
+    function having_and($and){
+        $where = $this->having();
+        $where[] = new WhereAND($and);
+        return $this;
+    }
+    function having_or($or){
+        $where = $this->having();
+        $where[] = new WhereOR($or);
+        return $this;
+    }
 	
 	function group($group = null){
 		if($group === null) return $this->group_by;

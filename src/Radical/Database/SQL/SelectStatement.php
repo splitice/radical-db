@@ -127,6 +127,28 @@ class SelectStatement extends Internal\StatementBase {
 	}
 
     /**
+     * @param mixed $where
+     * @return SelectStatement
+     */
+    function having($where = null){
+        return $this->_R($this->from->having($where));
+    }
+    /**
+     * @param mixed $where
+     * @return SelectStatement
+     */
+    function having_and($where){
+        return $this->_R($this->from->having_and($where));
+    }
+    /**
+     * @param mixed $where
+     * @return SelectStatement
+     */
+    function having_or($where){
+        return $this->_R($this->from->having_or($where));
+    }
+
+    /**
      * @param mixed $group
      * @return SelectStatement
      */
