@@ -638,7 +638,7 @@ abstract class Table implements ITable, \JsonSerializable {
 	 * @see \Radical\Database\Model\ITable::Insert()
 	 */
 	function insert($ignore = -1){
-        $this->call_action("insert_before");
+        $this->call_action("insert_before", $this);
 		$this->Validate();
 		
 		if($ignore instanceof InsertBuffer){
@@ -674,7 +674,7 @@ abstract class Table implements ITable, \JsonSerializable {
 			}
 		}
 
-        $this->call_action("insert_after");
+        $this->call_action("insert_after", $this);
 	}
 	
 	static function exists(){
