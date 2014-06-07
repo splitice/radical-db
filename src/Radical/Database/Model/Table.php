@@ -256,7 +256,7 @@ abstract class Table implements ITable, \JsonSerializable {
 	
 	function update(){
         $this->call_action("update_before");
-		$this->Validate();
+		$this->Validate('update');
 		$identifying = $this->getIdentifyingSQL();
 		$values = $this->toSQL();
 		foreach($identifying as $k=>$v){
@@ -639,7 +639,7 @@ abstract class Table implements ITable, \JsonSerializable {
 	 */
 	function insert($ignore = -1){
         $this->call_action("insert_before", $this);
-		$this->Validate();
+		$this->Validate('insert');
 		
 		if($ignore instanceof InsertBuffer){
 			$ignore->add($this);
