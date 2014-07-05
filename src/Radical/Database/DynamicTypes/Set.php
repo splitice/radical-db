@@ -27,7 +27,9 @@ class Set extends DynamicType implements IDynamicType,IDynamicValidate {
 		}
 		return true;
 	}
-	
+	function getKeys(){
+        return $this->keys;
+    }
 	function getSet(){
 		return $this->value;
 	}
