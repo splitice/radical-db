@@ -191,8 +191,13 @@ abstract class Table implements ITable, \JsonSerializable {
 		}elseif(is_array($in)){
 			foreach($in as $k=>$v){
 				$this->$k = $v;
-				if(is_object($v))
-					$in[$k] = $v->getId();
+				if(is_object($v)){
+                    if($v instanceof Table){
+					    $in[$k] = $v->getId();
+                    }else{
+                        $in[$k] = $v;
+                    }
+                }
 			}
 			//$this->_store = $in;
 		}else{
@@ -210,7 +215,10 @@ abstract class Table implements ITable, \JsonSerializable {
 					continue;
 				}
 			}
-			$this->$field = $dT::fromDatabaseModel($this->$field, $value['extra'], $this, $field);
+            $v = $this->$field;
+            if(!($v instanceof IDynamicType)){
+			    $this->$field = $dT::fromDatabaseModel($v, $value['extra'], $this, $field);
+            }
 		}
 	}
 	
@@ -224,9 +232,9 @@ abstract class Table implements ITable, \JsonSerializable {
 				if(is_object($v) && isset($this->orm->relations[$k])){
 					$v = $v->getSQLField($this->orm->relations[$k]->getColumn());
 				}
-				if(is_object($v) && $v instanceof IDynamicType){
+				/*if(is_object($v) && $v instanceof IDynamicType){
 					$v = (string)$v;
-				}
+				}*/
 			}
 			$ret[$k] = $v;
 		}

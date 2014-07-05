@@ -1,6 +1,7 @@
 <?php
 namespace Radical\Database\DynamicTypes;
 use Radical\Database\Model\ITable;
+use Radical\DB;
 
 class Set extends DynamicType implements IDynamicType,IDynamicValidate {
 	protected $value;
@@ -51,12 +52,12 @@ class Set extends DynamicType implements IDynamicType,IDynamicValidate {
 	
 	function __toString(){
 		if(!is_array($this->value)){
-			die(var_dump($this->value));
+			throw new \Exception('Unexpected value format');
 		}
 		return (string)implode(',',$this->value);
 	}
 	function toSQL(){
-		return $this->__toString();
+		return DB::e($this->__toString());
 	}
 	function setValue($value){
 		if(count($value) == 0){

@@ -2,6 +2,7 @@
 namespace Radical\Database\DynamicTypes;
 
 use Radical\Database\Model\ITable;
+use Radical\DB;
 
 class String extends DynamicType implements IDynamicType {
 	protected $value;
@@ -22,7 +23,7 @@ class String extends DynamicType implements IDynamicType {
 		return (string)$this->value;
 	}
 	function toSQL(){
-		return $this->value;
+		return DB::E((string)$this);
 	}
 	static function fromDatabaseModel($value,array $extra,ITable $model){
 		//DEVELOPER NOTE
