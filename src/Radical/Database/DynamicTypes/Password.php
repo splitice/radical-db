@@ -1,10 +1,7 @@
 <?php
 namespace Radical\Database\DynamicTypes;
 
-class Password extends String implements INullable {
-	function isNull(){
-		return ($this->value === null);
-	}
+class Password extends String {
 	function getAlgo(){
 		$algo = 'Raw';
 		if($this->extra){
