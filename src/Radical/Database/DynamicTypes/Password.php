@@ -1,6 +1,8 @@
 <?php
 namespace Radical\Database\DynamicTypes;
 
+use Radical\Database\Model\ITable;
+
 class Password extends String {
 	function getAlgo(){
 		$algo = 'Raw';
@@ -17,4 +19,10 @@ class Password extends String {
 		$class = $this->getAlgo();
 		parent::setValue($class::Hash($value));
 	}
+
+    static function fromUserModel($value,array $extra,ITable $model){
+        $t = static::fromDatabaseModel($value, $extra, $model);
+        $t->setValue($value);
+        return $t;
+    }
 }
