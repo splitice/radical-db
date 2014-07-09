@@ -42,6 +42,8 @@ class SelectStatement extends Internal\StatementBase {
      */
     protected $from;
 
+    protected $for_update;
+
 
     /**
      * @param null $table
@@ -180,6 +182,11 @@ class SelectStatement extends Internal\StatementBase {
 	function remove_order_by(){
 		return $this->_R($this->from->remove_order_by());
 	}
+
+    function for_update($for_update = true){
+        $this->for_update = $for_update;
+        return $this;
+    }
 	
 	function __clone(){
         if($this->from)
@@ -205,6 +212,9 @@ class SelectStatement extends Internal\StatementBase {
 				$fields[$key] = ($value.' AS '.$key);
 		});
 		$ret = 'SELECT '.implode(', ',$fields).' '.$this->from;
+        if($this->for_update){
+            $ret .= ' FOR UPDATE';
+        }
 		return $ret;
 	}
 }

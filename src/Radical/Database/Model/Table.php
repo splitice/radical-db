@@ -105,8 +105,8 @@ abstract class Table implements ITable, \JsonSerializable {
     /**
      * @return static
      */
-    function refreshTableData(){
-		return static::fromId(static::getIdentifyingSQL());
+    function refreshTableData($forUpdate = false){
+		return static::fromId(static::getIdentifyingSQL(), $forUpdate);
 	}
 	function setSQLField($field,$value){
 		//Check can map
@@ -574,11 +574,15 @@ abstract class Table implements ITable, \JsonSerializable {
 	 * @throws \Exception
 	 * @return static
 	 */
-	static function fromId($id){		
+	static function fromId($id, $forUpdate = false){
 		$orm = ORM\Manager::getModel(TableReference::getByTableClass(get_called_class()));
 		
 		//Base SQL
 		$sql = static::_select();
+
+        if($forUpdate){
+            $sql->for_update($forUpdate);
+        }
 		
 		//Build
 		if($id instanceof Parts\Where){

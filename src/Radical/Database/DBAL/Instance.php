@@ -241,7 +241,7 @@ class Instance {
 			return $ret;
 		}catch(TransactionException $ex){
 			$this->transactionRollback();
-			return $method();
+			return $this->transaction($method);
 		}
 	}
 }
