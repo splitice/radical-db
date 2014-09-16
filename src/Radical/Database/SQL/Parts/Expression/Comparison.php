@@ -47,6 +47,8 @@ class Comparison extends Internal\PartBase implements IComparison {
 					throw new \Exception("Invalid operation with NULL");
 				}
 			}
+            $this->escaped = true;
+            $this->b = 'NULL';
 		}
 		
 		return $a.' '.$op.' '.($this->escaped?$this->b:\Radical\DB::E($this->b));
