@@ -78,7 +78,7 @@ class MySQLConnection implements IConnection {
 	function isConnected() {
 		if(php_sapi_name() == 'fpm-fcgi') return $this->mysqli;//Web requests are short
 		
-		return ($this->mysqli && $this->mysqli->ping());
+		return ($this->mysqli && @$this->mysqli->ping());
 	}
 	
 	function toInstance(){
