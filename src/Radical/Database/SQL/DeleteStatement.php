@@ -6,7 +6,7 @@ use Radical\Database\SQL\Parts\From;
 class DeleteStatement extends Internal\StatementBase {	
 	protected $from;
 	
-	function __construct($table, $where){
+	function __construct($table = null, $where = null){
 		if($table !== null && !is_array($table)){
 			$table = array($table);
 		}
