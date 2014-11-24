@@ -418,7 +418,7 @@ abstract class Table implements ITable, \JsonSerializable {
 					$this->$actionPart = $value;
 				}elseif($value !== null || CoreInterface::oneof($this->orm->dynamicTyping[$actionPart]['var'], 'Radical\\Database\\DynamicTypes\\INullable')){
 					$var = $this->orm->dynamicTyping[$actionPart]['var'];
-					$this->$actionPart = $var::fromUserModel($value,$this->orm->dynamicTyping[$actionPart]['extra'],$this);
+					$this->$actionPart = $var::fromUserModel($value,$this->orm->dynamicTyping[$actionPart]['extra'],$this,$actionPart);
 				}else{//else set to null
 					$this->$actionPart = null;
 				}

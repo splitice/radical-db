@@ -50,8 +50,8 @@ class DB extends DBAL\SQLUtils {
 	}
 	
 	/**
-	 * @param Database\IConnection $connection
-	 * @return DB
+	 * @param \Radical\Database\DBAL\Adapter\IConnection $connection
+	 * @return \Radical\Database\DBAL\Instance
 	 */
 	static function getInstance(Adapter\IConnection $connection = null){
 		if($connection === null){
@@ -233,11 +233,15 @@ class DB extends DBAL\SQLUtils {
 	 * @param Database\Fetch:: $format
 	 * @return Array <int, mixed>
 	 */
-	static function fetchCallback($res, $callback, $format = DBAL\Fetch::ALL_ASSOC) {
-		return static::__callStatic(__FUNCTION__, func_get_args());
-	}
-	
-	
+	static function fetchCallback($res, $callback, $format = DBAL\Fetch::ALL_ASSOC)
+    {
+        return static::__callStatic(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @param $res
+     * @return integer
+     */
 	static function numRows($res){
 		return static::__callStatic(__FUNCTION__, func_get_args());
 	}
@@ -252,6 +256,12 @@ class DB extends DBAL\SQLUtils {
 	static function transaction($what){
 		return static::__callStatic(__FUNCTION__, func_get_args());
 	}
+    static function isInTransaction(){
+        $instance = static::getInstance();
+        if($instance){
+            return $instance->isInQuery;
+        }
+    }
 	
 	/* Sql Builders */
 	static function select($table = null, $fields = '*'){

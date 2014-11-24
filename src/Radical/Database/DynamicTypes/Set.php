@@ -43,13 +43,16 @@ class Set extends DynamicType implements IDynamicType,IDynamicValidate {
 		}
 	}
 	
-	static function fromDatabaseModel($value,array $extra,ITable $model,$field = null){
-		$keys = $model->orm->validation->request_data($model->orm->reverseMappings[$field])->getValues();
-		
+	static function fromDatabaseModel($value, array $extra, ITable $model, $field = null){
+        if($field === null){
+            throw new \Exception("A field must be supplied to instanciate a Set type");
+        }
+		$data = $model->orm->validation->request_data($model->orm->reverseMappings[$field]);
+		$keys = $data->getValues();
 		return new static($value,$extra, $keys);
 	}
-	static function fromUserModel($value,array $extra,ITable $model){
-		return static::fromDatabaseModel($value, $extra, $model);
+	static function fromUserModel($value, array $extra, ITable $model, $field = null){
+		return static::fromDatabaseModel($value, $extra, $model, $field);
 	}
 	
 	function __toString(){

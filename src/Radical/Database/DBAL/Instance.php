@@ -220,17 +220,21 @@ class Instance {
 	}
 	
 	/* Start / End transaction */
+    public $inTransaction = false;
 	function transactionStart(){
+        $this->inTransaction = true;
 		$this->Query('START TRANSACTION');
 	}
 	function transactionCommit(){
 		$result = $this->adapter->commit();
-		if(!$result){
+        $this->inTransaction = false;
+        if(!$result){
 			throw new TransactionException("Commit failed");
 		}
 	}
 	function transactionRollback(){
 		$this->adapter->rollback();
+        $this->inTransaction = false;
 	}
 	
 	function transaction($method){
