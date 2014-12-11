@@ -259,7 +259,7 @@ class DB extends DBAL\SQLUtils {
     static function isInTransaction(){
         $instance = static::getInstance();
         if($instance){
-            return $instance->isInQuery;
+            return $instance->inTransaction;
         }
     }
 	
