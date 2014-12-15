@@ -11,6 +11,9 @@ class DateTime extends \Radical\Basic\DateTime\DateTime implements IDynamicType 
 	 * @param string $value
 	 */
 	public function setValue($value) {
+        if(is_string($value) && !is_numeric($value)){
+            $value = strtotime($value);
+        }
 		$this->timestamp = $value;
 	}
 

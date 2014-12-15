@@ -81,12 +81,32 @@ abstract class Table implements ITable, \JsonSerializable {
 	
 		return $id;
 	}
+    function hasIdentifyingKey(){
+        //No private key, composite of all values, todo: check null?
+        if(!$this->orm->id){
+            return count($this->_store);
+        }
+
+        foreach($this->orm->id as $k=>$v){
+            $mapped = $this->orm->mappings[$v];
+            if(isset($this->_store[$mapped])){
+                if($this->_store[$mapped] !== null){
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
 	function getIdentifyingSQL(){
 		$id = array();
-		if(!$this->orm->id){
+
+        //No private key, composite of all values
+        if(!$this->orm->id){
 			return $this->_store;
 		}
-		//die(var_dump($this->_store));
+
+        //get the id
 		foreach($this->orm->id as $k=>$v){
 			$mapped = $this->orm->mappings[$v];
 			if(isset($this->_store[$mapped]))
@@ -232,9 +252,6 @@ abstract class Table implements ITable, \JsonSerializable {
 				if(is_object($v) && isset($this->orm->relations[$k])){
 					$v = $v->getSQLField($this->orm->relations[$k]->getColumn());
 				}
-				/*if(is_object($v) && $v instanceof IDynamicType){
-					$v = (string)$v;
-				}*/
 			}
 			$ret[$k] = $v;
 		}
@@ -382,7 +399,13 @@ abstract class Table implements ITable, \JsonSerializable {
 			//Use schema
 			foreach($this->orm->references as $ref){
 				if($ref['from_table']->getName() == $className){
-					$select = array($ref['from_field']=>$this->getSQLField($ref['to_field']));
+                    $field = $this->getSQLField($ref['to_field']);
+                    if($field === null){
+                        $select = new Parts\Where();
+                        $select[] = 'FALSE';
+                    }else {
+                        $select = array($ref['from_field'] => $field);
+                    }
 					return $this->_related_cache($className,$ref['from_table']->getAll($select));
 				}
 			}
@@ -390,8 +413,14 @@ abstract class Table implements ITable, \JsonSerializable {
 			//Fallback, not schema related so try a fetch
 			$relationship = TableReference::getByTableClass($className);
 			if(isset($relationship)){//Is a relationship
-				//Fallback to attempting to get 
-				return $this->_related_cache($className,$relationship->getAll($this->getIdentifyingSQL()));
+				//Fallback to attempting to get
+                if($this->hasIdentifyingKey()){
+                    $select = $this->getIdentifyingSQL();
+                }else{
+                    $select = new Parts\Where();
+                    $select[] = 'FALSE';
+                }
+				return $this->_related_cache($className,$relationship->getAll($select));
 			}
 		}catch(\Exception $ex){
 			throw new \BadMethodCallException('Relationship doesnt exist: unable to relate');
