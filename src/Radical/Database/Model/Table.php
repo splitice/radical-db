@@ -318,6 +318,7 @@ abstract class Table implements ITable, \JsonSerializable {
 		}else{
 			$keys = get_object_vars($this);
 			unset($keys['orm']);
+            unset($keys['actions']);
 			$keys = array_keys($keys);
 			return $keys;
 		}
