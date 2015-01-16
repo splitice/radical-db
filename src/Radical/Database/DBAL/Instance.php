@@ -50,7 +50,6 @@ class Instance {
 		if($sql instanceof IToSQL){
 			$sql = $sql->toSQL();
 		}
-		
 		//Do Query
 		//echo $sql,"\r\n";
 		$res = $this->adapter->Query($sql);

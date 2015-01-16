@@ -39,9 +39,9 @@ class TableSet extends \Radical\Basic\Arr\Object\IncompleteObject {
 		$sql->Execute();
 	}
 	function getData(){
-		//Execute		
+		//Execute
 		$res = \Radical\DB::Query($this->sql);
-		
+
 		//Table'ify
 		return $res->FetchCallback(array($this->tableClass,'fromSQL'));
 	}

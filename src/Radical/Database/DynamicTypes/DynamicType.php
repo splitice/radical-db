@@ -1,7 +1,7 @@
 <?php
 namespace Radical\Database\DynamicTypes;
 
-use Exceptions\ValidationException;
+use Radical\Exceptions\ValidationException;
 
 abstract class DynamicType {
 	function doValidate($value, $field){
