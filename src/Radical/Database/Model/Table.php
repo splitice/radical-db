@@ -299,8 +299,9 @@ abstract class Table implements ITable, \JsonSerializable {
 			}
 		}
 		
-		if(count($values))
+		if(count($values)) {
 			\Radical\DB::Update($this->orm->tableInfo['name'], $values, $identifying);
+		}
 
         $this->call_action("update_after");
 	}
