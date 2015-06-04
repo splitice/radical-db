@@ -236,15 +236,25 @@ class Instance {
         $this->inTransaction = false;
 	}
 	
-	function transaction($method){
-		try {
-			$this->transactionStart();
-			$ret = $method();
-			$this->transactionCommit();
-			return $ret;
-		}catch(TransactionException $ex){
-			$this->transactionRollback();
-			return $this->transaction($method);
-		}
+	function transaction($method, $retries = 3, $auto_de_nest = true){
+        if($this->inTransaction && $auto_de_nest){
+            return $method();
+        }
+
+        $ex = null;
+
+        for($i=0;$i<$retries;$i++) {
+            try {
+                $this->transactionStart();
+                $ret = $method();
+                $this->transactionCommit();
+                return $ret;
+            } catch (TransactionException $ex) {
+                $this->transactionRollback();
+            }
+        }
+
+        // $i == $retries
+        throw $ex;
 	}
 }

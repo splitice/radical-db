@@ -46,6 +46,7 @@ class MySQLConnection implements IConnection {
 				null, $this->compression?MYSQLI_CLIENT_COMPRESS:0 );
 		
 		if (! $connection_status) {
+            $this->mysqli = null;
 			throw new Exception\ConnectionException ( $this->__toString(), $this->Error() );
 		}
 		
