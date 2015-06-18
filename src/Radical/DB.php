@@ -65,7 +65,7 @@ class DB extends DBAL\SQLUtils {
 		}
 		
 		if(!static::$connectionPool){
-			throw new Database\Exception\ConnectionException('');
+			throw new Database\Exception\ConnectionException('[n/a]');
 		}
 		
 		//Get Database Instance from connection details
@@ -257,9 +257,12 @@ class DB extends DBAL\SQLUtils {
 		return static::__callStatic(__FUNCTION__, func_get_args());
 	}
     static function isInTransaction(){
+        return static::__callStatic(__FUNCTION__, func_get_args());
+    }
+    static function transactionManager(){
         $instance = static::getInstance();
         if($instance){
-            return $instance->inTransaction;
+            return $instance->transactionManager;
         }
     }
 	

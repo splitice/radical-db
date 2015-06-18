@@ -11,10 +11,20 @@ class Instance {
 	
 	/* Psudeo Returns */
 	const NOT_A_RESULT = null;
-	
+
+    /**
+     * @var Adapter\IConnection
+     */
 	public $adapter;
+
+    /**
+     * @var TransactionManager
+     */
+    public $transactionManager;
+
 	function __construct(Adapter\IConnection $adapter, $host, $user, $pass, $db = null, $port = 3306, $compression=true){
 		$this->adapter = new $adapter($host, $user, $pass, $db, $port, $compression);
+        $this->transactionManager = new TransactionManager($this);
 	}
 	
 	function close(){
@@ -63,6 +73,7 @@ class Instance {
 	
 		if ($res === false) { //Failure
 			$errno = mysqli_errno( $mysqli );
+            //TODO: WSREP has not yet prepared node for application use
 			if(!$is_retry && ($errno == 2006 || $errno == 2013)){
 				$this->reConnect();
 				return $this->Q($sql,$timeout,true);
@@ -219,25 +230,35 @@ class Instance {
 	}
 	
 	/* Start / End transaction */
-    public $inTransaction = false;
 	function transactionStart(){
-        $this->inTransaction = true;
-		$this->Query('START TRANSACTION');
+		$result = $this->adapter->beginTransaction();
+        if(!$result){
+            throw new TransactionException("Transaction BEGIN failed");
+        }
+        $this->transactionManager->inTransaction = true;
 	}
 	function transactionCommit(){
 		$result = $this->adapter->commit();
-        $this->inTransaction = false;
+        $this->transactionManager->inTransaction = false;
         if(!$result){
-			throw new TransactionException("Commit failed");
+			throw new TransactionException("Transaction COMMIT failed");
 		}
+        $this->transactionManager->handleOnCommit();
 	}
 	function transactionRollback(){
-		$this->adapter->rollback();
-        $this->inTransaction = false;
+        $result = $this->adapter->rollback();
+        $this->transactionManager->inTransaction = false;
+        if(!$result){
+            throw new TransactionException("Transaction ROLLBACK failed");
+        }
+        $this->transactionManager->handleOnRollback();
 	}
+    function inTransaction(){
+        return $this->transactionManager->inTransaction;
+    }
 	
-	function transaction($method, $retries = 3, $auto_de_nest = true){
-        if($this->inTransaction && $auto_de_nest){
+	function transaction($method, $retries = 5, $auto_de_nest = true){
+        if($this->inTransaction() && $auto_de_nest){
             return $method();
         }
 
@@ -251,10 +272,17 @@ class Instance {
                 return $ret;
             } catch (TransactionException $ex) {
                 $this->transactionRollback();
+            } finally {
+                $this->transactionRollback();
+            }
+
+            //Delay for retry 2 onwards to try and reduce thrashing. 100ms per retry
+            for($f = $i - 1; $f > 0; --$f){
+                usleep(100000);
             }
         }
 
         // $i == $retries
-        throw $ex;
+        throw new TransactionException("Maximum of ".$retries.' exceeded',0,$ex);
 	}
 }

@@ -43,8 +43,9 @@ class Cache {
 	 * @return ModelData
 	 */
 	static function get($table){
-		if(self::$data === null)
-			self::init();
+		if(self::$data === null) {
+            self::init();
+        }
 		$table = self::key($table);
 		if(isset(self::$data[$table])){
 			return self::$data[$table];
