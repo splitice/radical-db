@@ -1,10 +1,10 @@
 <?php
 namespace Radical\Database\SQL;
 
-use Radical\Basic\String\Number;
 use Radical\Basic\Cast;
-use Radical\Database\SQL\Parts\From;
+use Radical\Basic\String\Number;
 use Radical\Database\DBAL;
+use Radical\Database\SQL\Parts\From;
 
 /*
 http://dev.mysql.com/doc/refman/5.5/en/select.html

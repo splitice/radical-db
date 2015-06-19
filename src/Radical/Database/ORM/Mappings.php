@@ -1,9 +1,8 @@
 <?php
 namespace Radical\Database\ORM;
 
-use Radical\Database\SQL\Parse\CreateTable\ColumnReference;
-
 use Radical\Database\SQL\Parse\CreateTable;
+use Radical\Database\SQL\Parse\CreateTable\ColumnReference;
 
 class Mappings {
 	/**

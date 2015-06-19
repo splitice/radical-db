@@ -1,9 +1,8 @@
 <?php
 namespace Radical\Database\SQL\Parts;
 
-use Radical\Database\SQL\Parts\Expression\TableExpression;
-
 use Radical\Basic\Arr;
+use Radical\Database\SQL\Parts\Expression\TableExpression;
 
 class GroupBy extends Internal\ArrayPartBase {
 	function _Set($k,$v){

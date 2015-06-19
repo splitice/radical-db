@@ -1,18 +1,17 @@
 <?php
 namespace Radical\Database\Model;
 
-use Radical\Database\SQL\IMergeStatement;
-
+use Exceptions\ValidationException;
+use Radical\Core\CoreInterface;
+use Radical\Database\DBAL;
+use Radical\Database\DynamicTypes\IDynamicType;
 use Radical\Database\DynamicTypes\IDynamicValidate;
 use Radical\Database\DynamicTypes\INullable;
-use Exceptions\ValidationException;
-use Radical\Database\DynamicTypes\IDynamicType;
 use Radical\Database\IToSQL;
 use Radical\Database\ORM;
-use Radical\Database\DBAL;
 use Radical\Database\SQL;
+use Radical\Database\SQL\IMergeStatement;
 use Radical\Database\SQL\Parts;
-use Radical\Core\CoreInterface;
 use Splitice\EventTrait\THookable;
 
 abstract class Table implements ITable, \JsonSerializable {

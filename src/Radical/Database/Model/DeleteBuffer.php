@@ -1,8 +1,9 @@
 <?php
 namespace Radical\Database\Model;
 
-use Radical\Database\SQL\Parts\Expression\In;
 use Radical\Database\SQL\Parts\Expression\Comparison;
+use Radical\Database\SQL\Parts\Expression\In;
+
 class DeleteBuffer {
 	private $table;
 	private $data = array();

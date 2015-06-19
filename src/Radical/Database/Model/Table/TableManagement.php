@@ -1,8 +1,8 @@
 <?php
 namespace Radical\Database\Model\Table;
+use Radical\Database\DBAL\Fetch;
 use Radical\Database\Model\TableReferenceInstance;
 use Radical\Database\SQL;
-use Radical\Database\DBAL\Fetch;
 
 class TableManagement {
 	public $SHOW_ADMIN = true;

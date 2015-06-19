@@ -2,10 +2,10 @@
 namespace Radical\Database\Model\Table;
 
 use Radical\Database\DBAL\Fetch;
-use Radical\Database\SQL\SelectStatement;
 use Radical\Database\Search\Adapter\ISearchAdapter;
-use Radical\Database\SQL\IStatement;
 use Radical\Database\SQL;
+use Radical\Database\SQL\IStatement;
+use Radical\Database\SQL\SelectStatement;
 
 class TableSet extends \Radical\Basic\Arr\Object\IncompleteObject {
 	/**

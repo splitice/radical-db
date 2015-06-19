@@ -1,17 +1,12 @@
 <?php
 namespace Radical\Database\SQL\Parts\Internal;
 
-use Radical\Basic\String\Number;
-
-use Radical\Database\SQL\Parts\Expression\IComparison;
-
-use Radical\Database\SQL\Parts\Expression\Comparison;
-
-use Radical\Database\IToSQL;
-
-use Radical\Database\SQL\Parts\WhereAND;
-
 use Radical\Basic\Arr;
+use Radical\Basic\String\Number;
+use Radical\Database\IToSQL;
+use Radical\Database\SQL\Parts\Expression\Comparison;
+use Radical\Database\SQL\Parts\Expression\IComparison;
+use Radical\Database\SQL\Parts\WhereAND;
 
 abstract class FilterPartBase extends ArrayPartBase {
 	const PART_NAME = '*INVALID*';

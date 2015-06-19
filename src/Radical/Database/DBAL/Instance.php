@@ -1,10 +1,10 @@
 <?php
 namespace Radical\Database\DBAL;
-use Radical\Database\IToSQL;
-use Radical\Database\SQL;
 use Radical\Database\DBAL;
 use Radical\Database\Exception;
+use Radical\Database\IToSQL;
 use Radical\Database\Model\TableReference;
+use Radical\Database\SQL;
 
 class Instance {
 	const QUERY_TIMEOUT = 30;

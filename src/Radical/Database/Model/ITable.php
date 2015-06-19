@@ -2,6 +2,7 @@
 namespace Radical\Database\Model;
 
 use Radical\Database\IToSQL;
+
 interface ITable extends IToSQL {
 	function toSQL($in = null);
 	function update();

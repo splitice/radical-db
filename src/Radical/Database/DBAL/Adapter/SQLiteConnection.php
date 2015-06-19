@@ -1,7 +1,6 @@
 <?php
 namespace Radical\Database\DBAL\Adapter;
 use Radical\Database\DBAL\Instance;
-
 use Radical\Database\Exception;
 
 class SQLiteConnection implements IConnection {

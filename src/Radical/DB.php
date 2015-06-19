@@ -1,9 +1,9 @@
 <?php
 namespace Radical;
-use Radical\Database\SQL\SelectStatement;
 use Radical\Database\DBAL;
 use Radical\Database\DBAL\Adapter;
 use Radical\Database\DBAL\Handler;
+use Radical\Database\SQL\SelectStatement;
 
 /**
  * Database Interface Class

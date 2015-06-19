@@ -11,11 +11,11 @@ namespace Radical\Database\SQL\Parts;
     [LIMIT {[offset,] row_count | row_count OFFSET offset}]
  */
 
-use Radical\Database\SQL\Parts\Expression\TableExpression;
-use Radical\Basic\String\Number;
-use Radical\Database\SQL\Parse\CreateTable;
-use Radical\Database\IToSQL;
 use Radical\Basic\Arr;
+use Radical\Basic\String\Number;
+use Radical\Database\IToSQL;
+use Radical\Database\SQL\Parse\CreateTable;
+use Radical\Database\SQL\Parts\Expression\TableExpression;
 
 class From extends Internal\MergePartBase {
 	protected $tables = array();

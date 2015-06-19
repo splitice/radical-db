@@ -2,6 +2,7 @@
 namespace Radical\Database\Model;
 
 use Radical\Database\IToSQL;
+
 class InsertBuffer {
 	private $table;
 	private $data = array();

@@ -2,8 +2,8 @@
 namespace Radical\Database\Search\Adapter;
 
 use Radical\Database\Model\TableReferenceInstance;
-use Radical\Database\SQL\SelectStatement;
 use Radical\Database\SQL\Parts\Expression\Fulltext;
+use Radical\Database\SQL\SelectStatement;
 
 class MysqlFulltext implements ISearchAdapter {
 	const MODE_STANDARD = 0;

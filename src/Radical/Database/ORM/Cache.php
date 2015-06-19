@@ -2,8 +2,8 @@
 namespace Radical\Database\ORM;
 
 use Radical\Core\Server;
-use Radical\Database\Model\TableReferenceInstance;
 use Radical\Database\DBAL\Fetch;
+use Radical\Database\Model\TableReferenceInstance;
 
 /**
  * Global cache of table ORMs

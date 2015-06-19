@@ -2,8 +2,8 @@
 namespace Radical\Database\ORM;
 
 use Radical\Database\Model\TableReferenceInstance;
-use Radical\Database\SQL\Parse\CreateTable\ColumnReference;
 use Radical\Database\SQL\Parse\CreateTable;
+use Radical\Database\SQL\Parse\CreateTable\ColumnReference;
 
 class MyIsam {
 	static function fieldReferences(CreateTable $structure,TableReferenceInstance $table){

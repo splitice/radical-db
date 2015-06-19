@@ -1,8 +1,8 @@
 <?php
 namespace Radical\Database\SQL\Internal;
 
-use Radical\Database\SQL\IStatement;
 use Radical\Database\SQL\IMergeStatement;
+use Radical\Database\SQL\IStatement;
 
 abstract class MergeBase implements IMergeStatement {
 	function mergeTo(IStatement $mergeIn){

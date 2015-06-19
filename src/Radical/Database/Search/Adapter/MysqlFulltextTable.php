@@ -1,14 +1,13 @@
 <?php
 namespace Radical\Database\Search\Adapter;
 
-use Radical\Database\SQL\Parts\Expression\Comparison;
-
-use Radical\Database\SQL\Parts\Expression\In;
-use Radical\Database\SQL\Parts\WhereOR;
-use Radical\Database\SQL\Parts\Where;
 use Radical\Database\Model\DynamicTableReference;
 use Radical\Database\Model\TableReference;
 use Radical\Database\Model\TableReferenceInstance;
+use Radical\Database\SQL\Parts\Expression\Comparison;
+use Radical\Database\SQL\Parts\Expression\In;
+use Radical\Database\SQL\Parts\Where;
+use Radical\Database\SQL\Parts\WhereOR;
 use Radical\Database\SQL\SelectStatement;
 
 class MysqlFulltextTable extends MysqlFulltext {

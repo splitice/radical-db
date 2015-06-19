@@ -1,9 +1,8 @@
 <?php
 namespace Radical\Database\SQL\Parts\Internal;
 
-use Radical\Database\SQL\Parts\Expression\TableExpression;
-
 use Radical\Database\SQL\Parts\Expression\Comparison;
+use Radical\Database\SQL\Parts\Expression\TableExpression;
 
 abstract class WherePart extends PartBase {
 	const SEPPERATOR = 'AND';

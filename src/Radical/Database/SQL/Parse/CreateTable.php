@@ -1,10 +1,8 @@
 <?php
 namespace Radical\Database\SQL\Parse;
-use Radical\Database\SQL\ShowCreateTable;
-
-use Radical\Database\DBAL;
-
 use Radical\Basic\Arr\Object\CollectionObject;
+use Radical\Database\DBAL;
+use Radical\Database\SQL\ShowCreateTable;
 
 class CreateTable extends CollectionObject {
 	public $indexes;
