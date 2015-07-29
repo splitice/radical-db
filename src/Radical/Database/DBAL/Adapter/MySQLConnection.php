@@ -53,7 +53,7 @@ class MySQLConnection implements IConnection {
 		return $this->mysqli;
 	}
     function beginTransaction(){
-        return $this->mysqli->begin_transaction();
+        return $this->connect()->begin_transaction();
     }
 	
 	function commit(){
@@ -113,7 +113,7 @@ class MySQLConnection implements IConnection {
 			throw new \Exception('Empty Query');
 		}
 		
-		return $this->Connect()->query ( $sql );
+		return @$this->Connect()->query ( $sql );
 	}
 	
 	function prepare($sql){

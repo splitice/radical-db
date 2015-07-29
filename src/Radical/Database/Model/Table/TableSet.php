@@ -48,6 +48,11 @@ class TableSet extends \Radical\Basic\Arr\Object\IncompleteObject {
 	function reset(){
 		$this->data = null;
 	}
+	function new_clone(){
+		$t = clone $this;
+		$t->reset();
+		return $t;
+	}
 	public function count(){
 		return $this->getCount();
 	}
