@@ -47,6 +47,7 @@ class TableSet extends \Radical\Basic\Arr\Object\IncompleteObject {
 	}
 	function reset(){
 		$this->data = null;
+		$this->count = null;
 	}
 	function new_clone(){
 		$t = clone $this;
