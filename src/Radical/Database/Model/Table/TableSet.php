@@ -38,9 +38,32 @@ class TableSet extends \Radical\Basic\Arr\Object\IncompleteObject {
 		$sql->values($value);
 		$sql->Execute();
 	}
+	private function query(){
+		return \Radical\DB::Query($this->sql);
+	}
+	function yieldData(){
+		if($this->data){
+			foreach($this->data as $d){
+				yield $d;
+			}
+			return;
+		}
+
+		//Execute
+		$res = $this->query();
+		$tc = $this->tableClass;
+
+		$count = 0;
+		while($row = $res->fetch()){
+			$obj = $tc::fromSQL($row);
+			$count ++;
+			yield $obj;
+		}
+		$this->count = $count;
+	}
 	function getData(){
 		//Execute
-		$res = \Radical\DB::Query($this->sql);
+		$res = $this->query();
 
 		//Table'ify
 		return $res->FetchCallback(array($this->tableClass,'fromSQL'));

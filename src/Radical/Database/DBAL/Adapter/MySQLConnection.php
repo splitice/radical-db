@@ -39,6 +39,8 @@ class MySQLConnection implements IConnection {
 		}
 		
 		$this->mysqli = mysqli_init();
+
+		$this->mysqli->options(MYSQLI_OPT_CONNECT_TIMEOUT, 2);
 		
 		//Connect - With compression
 		$connection_status = mysqli_real_connect ( $this->mysqli, $this->host, 
@@ -133,7 +135,7 @@ class MySQLConnection implements IConnection {
 	 * Return the last MySQL error
 	 */
 	function error() {
-		return $this->mysqli->error;
+		return $this->mysqli?$this->mysqli->error:null;
 	}
 	
 	/**

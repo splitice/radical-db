@@ -44,6 +44,9 @@ abstract class Table implements ITable, \JsonSerializable {
      */
 	protected $_id;
 
+	public $orm;
+	protected $_store = array();
+
     /**
      * @return int|string|array
      */
@@ -83,7 +86,7 @@ abstract class Table implements ITable, \JsonSerializable {
     function hasIdentifyingKey(){
         //No private key, composite of all values, todo: check null?
         if(!$this->orm->id){
-            return count($this->_store);
+            return count($this->_store) != 0;
         }
 
         foreach($this->orm->id as $k=>$v){
@@ -184,20 +187,22 @@ abstract class Table implements ITable, \JsonSerializable {
 	
 	protected function _handleResult($in_param){
 		$in = $in_param;
-		if(is_object($in)) $in = $in->toArray();
+		$store = false;
+		if(is_object($in)) {
+			$in = $in->toArray();
+			$store = true;
+		}
 
 		foreach($this->orm->mappings as $k=>$v){
 			if(isset($in[$k])){
 				$this->$v = $in[$k];
-				if(!is_array($in_param)){
+				if($store){
 					$this->_store[$v] = $in[$k];
 				}
 			}
 		}
 	}
-	
-	public $orm;
-	protected $_store = array();
+
 	function __construct($in = array(),$prefix = false){
         $this->hookInit();
 		//Setup object with table specific data
@@ -218,26 +223,28 @@ abstract class Table implements ITable, \JsonSerializable {
                     }
                 }
 			}
-			//$this->_store = $in;
 		}else{
 			throw new \Exception('Cant create table with this data');
 		}
 		$this->_dynamicType();
 	}
+
+	private function _dynamicTypeField($field,$v,$dynamicTypeValue){
+		$dT = $dynamicTypeValue['var'];
+		if($v === null){
+			if(!CoreInterface::oneof($dT, '\\Radical\\Database\\DynamicTypes\\INullable')){
+				return;
+			}
+		}
+		if(!($v instanceof IDynamicType)){
+			$this->$field = $dT::fromDatabaseModel($v, $dynamicTypeValue['extra'], $this, $field);
+		}
+	}
 	
 	private function _dynamicType(){
 		//Construct dynamic types
 		foreach($this->orm->dynamicTyping as $field=>$value){
-			$dT = $value['var'];
-			if($this->$field === null){
-				if(!CoreInterface::oneof($dT, '\\Radical\\Database\\DynamicTypes\\INullable')){
-					continue;
-				}
-			}
-            $v = $this->$field;
-            if(!($v instanceof IDynamicType)){
-			    $this->$field = $dT::fromDatabaseModel($v, $value['extra'], $this, $field);
-            }
+			$this->_dynamicTypeField($field, $this->$field, $value);
 		}
 	}
 	
@@ -350,7 +357,7 @@ abstract class Table implements ITable, \JsonSerializable {
 		if(is_array($id)) $id = implode('|',$id);
 		return $id;
 	}
-	private function call_get_member($actionPart,$a){
+	protected function call_get_member($actionPart,$a){
 		$relations = $this->orm->relations;
 		$dbName = $this->orm->reverseMappings[$actionPart];
 		if(isset($relations[$dbName]) && !is_object($this->$actionPart)){
@@ -432,7 +439,7 @@ abstract class Table implements ITable, \JsonSerializable {
 	public function fields(){
 		return array_keys($this->orm->reverseMappings);
 	}
-	private function call_set_value($actionPart,$value){
+	protected function call_set_value($actionPart,$value){
         $hookData = array('actionPart' => $actionPart, 'value' => $value);
         $this->call_action('call_set_before', $hookData);
 		if(isset($this->orm->reverseMappings[$actionPart])){		
@@ -696,7 +703,7 @@ abstract class Table implements ITable, \JsonSerializable {
 			}
 		}
 		
-		$id = \Radical\DB::Insert($this->orm->tableInfo['name'],$data,is_int($ignore)?$ignore:null);
+		$id = \Radical\DB::Insert($this->orm->tableInfo['name'],$data,$ignore?$ignore:null);
 		
 		foreach($data as $k=>$v){
 			$this->_store[$this->orm->mappings[$k]] = $v;

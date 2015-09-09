@@ -5,8 +5,11 @@ use Radical\Database\Exception;
 use Radical\Database\IToSQL;
 use Radical\Database\Model\TableReference;
 use Radical\Database\SQL;
+use Splitice\EventTrait\THookable;
 
 class Instance {
+	use THookable;
+
 	const QUERY_TIMEOUT = 30;
 	
 	/* Psudeo Returns */
@@ -25,6 +28,7 @@ class Instance {
 	function __construct(Adapter\IConnection $adapter, $host, $user, $pass, $db = null, $port = 3306, $compression=true){
 		$this->adapter = new $adapter($host, $user, $pass, $db, $port, $compression);
         $this->transactionManager = new TransactionManager($this);
+		$this->hookInit();
 	}
 	
 	function close(){
@@ -66,22 +70,24 @@ class Instance {
 		
 		//Query Done
 		$this->isInQuery = false;
-		
-		//if(!\Server::isCLI()){
-		//	set_time_limit(0);
-		//}
 	
 		if ($res === false) { //Failure
 			$errno = mysqli_errno( $mysqli );
-            //TODO: WSREP has not yet prepared node for application use
 			if(!$is_retry && ($errno == 2006 || $errno == 2013)){
 				$this->reConnect();
 				return $this->Q($sql,$timeout,true);
 			}else{
 				if($errno == 1213){
 					throw new TransactionException($this->Error ());
-				}else{
-					throw new Exception\QueryError ( $sql, $this->Error () );
+				}else {
+					$exception = new Exception\QueryError ($sql, $this->Error());
+					if (!$is_retry) {
+						$this->call_filter('error_handler',$exception);
+						if($exception === null){
+							return $this->query($sql, $timeout, true);
+						}
+					}
+					throw $exception;
 				}
 			}
 		} else {

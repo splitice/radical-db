@@ -1,9 +1,12 @@
 <?php
 namespace Radical\Database\Model;
 
+use Radical\Database\Model\Table\TableSet;
+
 class CacheableTable extends Table {
 	private $related_cache = array();
-	function _related_cache($name,$o){
+	function _related_cache($name, TableSet $o){
+		$o->cache(true);
 		$this->related_cache[$name] = $o;
 		return $o;
 	}
