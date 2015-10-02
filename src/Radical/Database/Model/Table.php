@@ -384,7 +384,7 @@ abstract class Table implements ITable, \JsonSerializable {
 		return $ret;
 	}
 	
-	protected function _related_cache($name,TableSet $o){
+	protected function _related_cache($name, TableSet $o){
 		return $o;
 	}
 	function _related_cache_get($name){
