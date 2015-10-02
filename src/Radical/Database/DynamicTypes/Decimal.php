@@ -5,7 +5,7 @@ use Exceptions\ValidationException;
 
 //TODO array based arithmatic
 //TODO gmp support (optional)
-class Decimal extends String implements IDynamicValidate {
+class Decimal extends StringType implements IDynamicValidate {
 	function add($a){
 		
 	}

@@ -8,6 +8,7 @@ use Radical\Database\DynamicTypes\IDynamicType;
 use Radical\Database\DynamicTypes\IDynamicValidate;
 use Radical\Database\DynamicTypes\INullable;
 use Radical\Database\IToSQL;
+use Radical\Database\Model\Table\TableSet;
 use Radical\Database\ORM;
 use Radical\Database\SQL;
 use Radical\Database\SQL\IMergeStatement;
@@ -383,10 +384,10 @@ abstract class Table implements ITable, \JsonSerializable {
 		return $ret;
 	}
 	
-	protected function _related_cache($name,$o){
+	protected function _related_cache($name,TableSet $o){
 		return $o;
 	}
-	function _related_cache_get(){
+	function _related_cache_get($name){
 		
 	}
 
@@ -656,7 +657,7 @@ abstract class Table implements ITable, \JsonSerializable {
 		}
 	}
 	
-	function validate(){
+	function validate($operation = null){
 		foreach($this->orm->dynamicTyping as $k=>$v){
 			$v = $this->$k;
 			if($v instanceof IDynamicValidate)

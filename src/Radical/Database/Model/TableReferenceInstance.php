@@ -113,8 +113,8 @@ class TableReferenceInstance {
 	function update($values = array(),$where = array()){
 		return new UpdateStatement($this->getTable(),$values,$where);
 	}
-	function insert($values = array()){
-		return new InsertStatement($this->getTable(),$values);
+	function insert($values = array(), $ignore = false){
+		return new InsertStatement($this->getTable(),$values,$ignore);
 	}
 	function delete($where = array()){
 		return new DeleteStatement($this->getTable(),$where);

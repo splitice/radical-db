@@ -77,18 +77,25 @@ class Instance {
 				$this->reConnect();
 				return $this->Q($sql,$timeout,true);
 			}else{
-				if($errno == 1213){
-					throw new TransactionException($this->Error ());
-				}else {
-					$exception = new Exception\QueryError ($sql, $this->Error());
-					if (!$is_retry) {
-						$this->call_filter('error_handler',$exception);
-						if($exception === null){
+				$error = $this->Error();
+				file_put_contents('/tmp/last_sql.err', $sql);
+				$exception = new Exception\QueryError ($sql, $error);
+				if (!$is_retry) {
+					if($errno == 1412 || $errno == 1213  || $errno == 1205){
+						$exception = null;
+					}
+					if($exception) {
+						$this->call_filter('error_handler', $exception);
+					}
+					if($exception === null){
+						if($this->inTransaction()){
+							$exception = new TransactionException($error);
+						}else {
 							return $this->query($sql, $timeout, true);
 						}
 					}
-					throw $exception;
 				}
+				throw $exception;
 			}
 		} else {
 			\Radical\DB::$query_log->addQuery ( $sql ); //add query to log
@@ -262,6 +269,11 @@ class Instance {
     function inTransaction(){
         return $this->transactionManager->inTransaction;
     }
+
+	private function transactionTooLong(){
+		$e = new \Exception();
+		file_put_contents('/tmp/transaction_long.txt',$e->getTraceAsString());
+	}
 	
 	function transaction($method, $retries = 5, $auto_de_nest = true){
         if($this->inTransaction() && $auto_de_nest){
@@ -272,9 +284,14 @@ class Instance {
 
         for($i=0;$i<$retries;$i++) {
             try {
+				$start = microtime(true);
                 $this->transactionStart();
                 $ret = $method();
                 $this->transactionCommit();
+				$end = microtime(true);
+				if(($start + 1.5) < $end){
+					$this->transactionTooLong();
+				}
                 return $ret;
             } catch (TransactionException $ex) {
                 $this->transactionRollback();

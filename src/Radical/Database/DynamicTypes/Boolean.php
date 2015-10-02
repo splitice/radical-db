@@ -4,7 +4,7 @@ namespace Radical\Database\DynamicTypes;
 use Exceptions\ValidationException;
 use Radical\Database\Model\ITable;
 
-class Boolean extends String implements IDynamicValidate {
+class Boolean extends StringType implements IDynamicValidate {
 	/**
 	 * @param string $value
 	 */

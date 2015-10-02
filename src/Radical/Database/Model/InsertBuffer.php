@@ -8,9 +8,10 @@ class InsertBuffer {
 	private $data = array();
 	private $buffer_count;
 	
-	function __construct(TableReferenceInstance $table, $buffer_count = 2000){
+	function __construct(TableReferenceInstance $table, $buffer_count = 2000, $ignore = false){
 		$this->table = $table;
 		$this->buffer_count = $buffer_count;
+		$this->ignore = $ignore;
 	}
 	
 	function add(IToSQL $table){
@@ -23,7 +24,7 @@ class InsertBuffer {
 	function insert(){
 		if($this->data){
 			try {
-				$ret = $this->table->insert($this->data)->query();
+				$ret = $this->table->insert($this->data, $this->ignore)->query();
 			}catch(\Exception $ex){
 				$this->data = array();
 				throw $ex;

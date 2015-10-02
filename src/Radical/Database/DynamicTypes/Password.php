@@ -3,7 +3,7 @@ namespace Radical\Database\DynamicTypes;
 
 use Radical\Database\Model\ITable;
 
-class Password extends String {
+class Password extends StringType {
 	function getAlgo(){
 		$algo = 'Raw';
 		if($this->extra){

@@ -3,7 +3,7 @@ namespace Radical\Database\DynamicTypes;
 
 use Radical\Database\Model\ITable;
 
-class Stub extends String implements INullable {
+class Stub extends StringType implements INullable {
 	function isNull(){
 		return ($this->value === null);
 	}

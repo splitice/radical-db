@@ -1,7 +1,7 @@
 <?php
 namespace Radical\Database\DynamicTypes;
 
-class Email extends String implements IDynamicValidate {
+class Email extends StringType implements IDynamicValidate {
 	function validate($value){
 		$email = \Radical\Utility\Net\eMail::fromAddress($value);
 		if(!$email)

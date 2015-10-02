@@ -3,7 +3,7 @@ namespace Radical\Database\DynamicTypes;
 
 use Radical\Database\Model\ITable;
 
-class Serialize extends String {
+class Serialize extends StringType {
 	function setValue($value){
 		parent::setValue(serialize($value));
 	}

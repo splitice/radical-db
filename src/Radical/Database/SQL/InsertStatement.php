@@ -33,7 +33,7 @@ class InsertStatement extends Internal\StatementBase {
 		if(is_string($this->ignore)){
 			$append = ' ON DUPLICATE KEY UPDATE '.$this->ignore;
 			$this->ignore = false;
-		}elseif($this->ignore == -1){
+		}elseif($this->ignore !== true && $this->ignore == -1){
 			$append = ' ON DUPLICATE KEY UPDATE ';
 			$join = array();
 			foreach($this->values as $k=>$v){

@@ -1,7 +1,7 @@
 <?php
 namespace Radical\Database\DynamicTypes;
 
-class URL extends String implements IDynamicValidate {
+class URL extends StringType implements IDynamicValidate {
 	function validate($value){
 		$url = \Radical\Utility\Net\URL::fromURL($value);
 		if(!$url)
