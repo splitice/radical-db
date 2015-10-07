@@ -25,9 +25,12 @@ class Instance {
      */
     public $transactionManager;
 
+	private $instanceId;
+
 	function __construct(Adapter\IConnection $adapter, $host, $user, $pass, $db = null, $port = 3306, $compression=true){
 		$this->adapter = new $adapter($host, $user, $pass, $db, $port, $compression);
         $this->transactionManager = new TransactionManager($this);
+		$this->instanceId = crc32(rand() . microtime(true) . rand());
 		$this->hookInit();
 	}
 	
@@ -248,11 +251,12 @@ class Instance {
         if(!$result){
             throw new TransactionException("Transaction BEGIN failed");
         }
-        $this->transactionManager->inTransaction = true;
+        $this->transactionManager->transactionCount = true;
 	}
 	function transactionCommit(){
 		$result = $this->adapter->commit();
         $this->transactionManager->inTransaction = false;
+		$this->transactionManager->transactionCount++;
         if(!$result){
 			throw new TransactionException("Transaction COMMIT failed");
 		}
@@ -261,10 +265,14 @@ class Instance {
 	function transactionRollback(){
         $result = $this->adapter->rollback();
         $this->transactionManager->inTransaction = false;
+		$this->transactionManager->transactionCount++;
         if(!$result){
             throw new TransactionException("Transaction ROLLBACK failed");
         }
         $this->transactionManager->handleOnRollback();
+	}
+	function transactionId(){
+		return $this->instanceId . '-' . $this->transactionManager->transactionCount;
 	}
     function inTransaction(){
         return $this->transactionManager->inTransaction;

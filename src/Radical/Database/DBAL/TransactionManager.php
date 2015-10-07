@@ -10,6 +10,7 @@ namespace Radical\Database\DBAL;
 
 
 class TransactionManager {
+    public $transactionCount = 0;
     public $inTransaction = false;
     private $onRollback = array();
     private $onCommit = array();
