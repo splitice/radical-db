@@ -1,6 +1,8 @@
 <?php
 namespace Radical\Database\DBAL;
 
+use Radical\Database\Exception\DatabaseException;
+
 abstract class SQLUtils {
 	abstract static function e($str);
 	abstract static function getInstance(Adapter\IConnection $connection = null);
@@ -64,7 +66,11 @@ abstract class SQLUtils {
 	static function A(array $array) {
 		$db = static::getInstance();
 		foreach ( $array as $k => $v ) {
-			$array [$k] = $db->Escape ( $v );
+			try {
+				$array [$k] = $db->Escape($v);
+			}catch(\Exception $ex){
+				throw new \RuntimeException("Unable to escape $k: " . $ex->getMessage(), 0, $ex);
+			}
 		}
 		return implode ( ',', $array );
 	}

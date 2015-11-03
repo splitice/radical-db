@@ -51,7 +51,7 @@ class Instance {
 	 * Execute MySQL query
 	 * @param string $sql
 	 * @throws \DB\Exception\QueryError
-	 * @return resource|NOT_A_RESULT
+	 * @return resource|Result
 	 */
 	function query($sql,$timeout=self::QUERY_TIMEOUT,$is_retry=false) {
 		$mysqli = $this->Connect();
