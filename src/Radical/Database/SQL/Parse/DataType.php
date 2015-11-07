@@ -9,11 +9,11 @@ class DataType {
 		}
 		return $cache;
 	}
-	static function fromSQL($type,$size,$default = null){
+	static function fromSQL($type,$size,$default = null,$extra = null){
 		$type = strtolower($type);
 		foreach(self::getTypes() as $t){
 			if($t::is($type)){
-				return new $t($type,$size,$default);
+				return new $t($type,$size,$default,$extra);
 			}
 		}
 	}

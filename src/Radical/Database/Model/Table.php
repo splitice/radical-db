@@ -1,7 +1,6 @@
 <?php
 namespace Radical\Database\Model;
 
-use Exceptions\ValidationException;
 use Radical\Core\CoreInterface;
 use Radical\Database\DBAL;
 use Radical\Database\DynamicTypes\IDynamicType;
@@ -13,6 +12,7 @@ use Radical\Database\ORM;
 use Radical\Database\SQL;
 use Radical\Database\SQL\IMergeStatement;
 use Radical\Database\SQL\Parts;
+use Radical\Exceptions\ValidationException;
 use Splitice\EventTrait\THookable;
 
 abstract class Table implements ITable, \JsonSerializable {
@@ -131,18 +131,43 @@ abstract class Table implements ITable, \JsonSerializable {
     function refreshTableData($forUpdate = false){
 		return static::fromId(static::getIdentifyingSQL(), $forUpdate);
 	}
+
+	private function process_field($field){
+		if($field{0} == '*'){
+			$field = static::TABLE_PREFIX.substr($field,1);
+		}elseif($field{0} == '~'){
+			$mapped = substr($field,1);
+			if(!isset($this->orm->reverseMappings[$mapped])){
+				throw new \Exception('Could not find mapping for: '.$mapped);
+			}
+			$field = $this->orm->reverseMappings[$mapped];
+		}
+		return $field;
+	}
+
 	function setSQLField($field,$value){
+		$sql_field = $this->process_field($field);
+
 		//Check can map
-		if(!isset($field)){
-			throw new \Exception('SQL field '.$field.' invalid');
+		if(!isset($this->orm->mappings[$sql_field])){
+			throw new \Exception('SQL field '.$sql_field.' not found');
 		}
 		
 		//Get field name
-		$field = $this->orm->mappings[$field];
-		
+		$field = $this->orm->mappings[$sql_field];
+
+		//Handle table's
+		$flat_value = $value;
+		if($flat_value instanceof Table){
+			if(!isset($this->orm->relations[$sql_field])){
+				throw new \Exception("Invalid relational input to field ". $field);
+			}
+			$flat_value = $flat_value->getSQLField($this->orm->relations[$sql_field]->getColumn());
+		}
+
 		//Validate
-		if(!$this->orm->validation->Validate($field, $value)){
-			throw new ValidationException('Couldnt set '.static::TABLE.'.'.$field.' to '.$value);
+		if(!$this->orm->validation->validate($sql_field, $flat_value)){
+			throw new ValidationException('Couldnt set '.$field.' to '.$value);
 		}
 		
 		//Set field
@@ -154,14 +179,11 @@ abstract class Table implements ITable, \JsonSerializable {
 		}
 	}
 	function getSQLField($field,$object = false) {
-		//Map non prefixed
-		if($field{0} == '*'){
-			$field = static::TABLE_PREFIX.substr($field,1);
-		}
-		
+		$field = $this->process_field($field);
+
 		//Check can map
 		if(!isset($this->orm->mappings[$field])){
-			throw new \Exception('SQL field '.$field.' invalid');
+			throw new \Exception('SQL field '.$field.' not found');
 		}
 
 		//Get field name
@@ -228,6 +250,10 @@ abstract class Table implements ITable, \JsonSerializable {
 			throw new \Exception('Cant create table with this data');
 		}
 		$this->_dynamicType();
+
+		if($in instanceof DBAL\Row){
+			$this->call_action('load_before');
+		}
 	}
 
 	private function _dynamicTypeField($field,$v,$dynamicTypeValue){
@@ -307,6 +333,7 @@ abstract class Table implements ITable, \JsonSerializable {
 		}
 		
 		if(count($values)) {
+			$this->call_action("update_before_query");
 			\Radical\DB::Update($this->orm->tableInfo['name'], $values, $identifying);
 		}
 
@@ -656,7 +683,8 @@ abstract class Table implements ITable, \JsonSerializable {
 			return new static($row);
 		}
 	}
-	
+
+
 	function validate($operation = null){
 		foreach($this->orm->dynamicTyping as $k=>$v){
 			$v = $this->$k;
@@ -702,6 +730,12 @@ abstract class Table implements ITable, \JsonSerializable {
 			if($v === null){
 				unset($data[$k]);
 			}
+		}
+
+		//Validate required fields
+		$missing = $this->orm->validation->what_is_missing($data);
+		if($missing !== null){
+			throw new ValidationException('Missing field '.$missing);
 		}
 		
 		$id = \Radical\DB::Insert($this->orm->tableInfo['name'],$data,$ignore?$ignore:null);

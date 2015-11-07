@@ -2,7 +2,7 @@
 namespace Radical\Database\SQL\Parse\Types;
 use Radical\Basic\Validation\IValidator;
 
-class Enum extends Internal\TypeBase implements IValidator {
+class Enum extends Internal\TypeBase implements Internal\ISQLType {
 	const TYPE = 'enum';
 
     static function is($type = null){

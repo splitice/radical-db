@@ -13,6 +13,9 @@ class ModelData {
     public $relationReverseMappings = array();//$other -> $this
 	public $references = array();//$other -> $this
 	public $id;
+	/**
+	 * @var Validation
+	 */
 	public $validation;
 	public $engine;
 	public $dynamicTyping;

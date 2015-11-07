@@ -5,7 +5,7 @@ use Radical\Basic\Validation\IValidator;
 
 class Validation {
     /**
-     * @var IValidator[]
+     * @var \Radical\Database\SQL\Parse\Types\Internal\ISQLType[]
      */
     private $data = array();
 	
@@ -14,6 +14,17 @@ class Validation {
 			$type = $v->getType();
 			$this->data[$field] = $type;
 		}
+	}
+
+	function what_is_missing($fields){
+		foreach($this->data as $field => $value){
+			if($value->getDefault() === null && !$value->getNull()){
+				if(!isset($fields[$field])){
+					return $field;
+				}
+			}
+		}
+		return null;
 	}
 	
 	function validate($field,$value){

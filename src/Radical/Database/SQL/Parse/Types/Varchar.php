@@ -3,7 +3,7 @@ namespace Radical\Database\SQL\Parse\Types;
 use Radical\Basic\Validation\IValidator;
 use Radical\Database\SQL\Parse\Types\Internal\IPHPDoctype;
 
-class Varchar extends ZZUnknown implements IValidator, IPHPDoctype {
+class Varchar extends ZZUnknown implements Internal\ISQLType, IPHPDoctype {
 	const TYPE = 'varchar';
 
     static function is($type = null){

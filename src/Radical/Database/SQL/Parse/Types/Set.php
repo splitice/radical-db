@@ -2,7 +2,7 @@
 namespace Radical\Database\SQL\Parse\Types;
 use Radical\Basic\Validation\IValidator;
 
-class Set extends ZZUnknown implements IValidator {
+class Set extends ZZUnknown implements Internal\ISQLType {
 	const TYPE = 'set';
 
     static function is($type = null){

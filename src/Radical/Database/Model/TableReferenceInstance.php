@@ -102,6 +102,15 @@ class TableReferenceInstance {
 		}
 		return false;
 	}
+
+	/**
+	 * @return Table
+	 */
+	function getNew(){
+		$class = $this->getClass();
+		return new $class;
+	}
+
 	/**
 	 * @return \Radical\Database\SQL\SelectStatement
 	 */
