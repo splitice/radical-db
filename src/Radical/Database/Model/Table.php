@@ -473,14 +473,14 @@ abstract class Table implements ITable, \JsonSerializable {
 		if(isset($this->orm->reverseMappings[$actionPart])){		
 			//Is this key a dynamic type?
 			if(isset($this->orm->dynamicTyping[$actionPart])){
-				if(is_object($this->$actionPart) && $this->$actionPart instanceof IDynamicType){//Do we already have the key set as a dynamic type?
+				if($value instanceof IDynamicType){//Have we been given a dynamic type?
+					$this->$actionPart = $value;
+				}elseif(is_object($this->$actionPart) && $this->$actionPart instanceof IDynamicType){//Do we already have the key set as a dynamic type?
 					if($value !== null || $this->$actionPart instanceof INullable){//can be set, set value
 						$this->$actionPart->setValue($value);
 					}else{//Else replace (used for null)
 						$this->$actionPart = $value;
 					}
-				}elseif($value instanceof IDynamicType){//Have we been given a dynamic type?
-					$this->$actionPart = $value;
 				}elseif($value !== null || CoreInterface::oneof($this->orm->dynamicTyping[$actionPart]['var'], 'Radical\\Database\\DynamicTypes\\INullable')){
 					$var = $this->orm->dynamicTyping[$actionPart]['var'];
 					$this->$actionPart = $var::fromUserModel($value,$this->orm->dynamicTyping[$actionPart]['extra'],$this,$actionPart);
