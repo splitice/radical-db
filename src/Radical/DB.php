@@ -256,7 +256,7 @@ class DB extends DBAL\SQLUtils {
 	static function transaction($what){
 		return static::__callStatic(__FUNCTION__, func_get_args());
 	}
-    static function isInTransaction(){
+    static function inTransaction(){
         return static::__callStatic(__FUNCTION__, func_get_args());
     }
     static function transactionManager(){

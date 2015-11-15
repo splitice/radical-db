@@ -251,7 +251,7 @@ class Instance {
         if(!$result){
             throw new TransactionException("Transaction BEGIN failed");
         }
-        $this->transactionManager->transactionCount = true;
+		$this->transactionManager->inTransaction = true;
 	}
 	function transactionCommit(){
 		$result = $this->adapter->commit();
