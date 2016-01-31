@@ -4,9 +4,6 @@ namespace Radical\Database\DBAL;
 use Radical\Database\Exception\DatabaseException;
 
 abstract class SQLUtils {
-	abstract static function e($str);
-	abstract static function getInstance(Adapter\IConnection $connection = null);
-		
 	static function oField($col,$fields){
 		$ret = 'FIELD('.$col;
 		foreach($fields as $f){

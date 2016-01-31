@@ -55,15 +55,17 @@ class MySQLConnection implements IConnection {
 		return $this->mysqli;
 	}
     function beginTransaction(){
-        return $this->connect()->begin_transaction();
+        return $this->connect()->autocommit(false);
     }
 	
 	function commit(){
-		return $this->mysqli->commit();
+		$ret = $this->mysqli->commit();
+		return $this->mysqli->autocommit(true) && $ret;
 	}
 	
 	function rollback(){
-		return $this->mysqli->rollback();
+		$ret = $this->mysqli->rollback();
+		return $this->mysqli->autocommit(true) && $ret;
 	}
 	
 	function ping(\mysqli $mysqli=null){

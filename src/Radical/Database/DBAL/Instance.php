@@ -256,7 +256,6 @@ class Instance {
 	function transactionCommit(){
 		$result = $this->adapter->commit();
         $this->transactionManager->inTransaction = false;
-		$this->transactionManager->transactionCount++;
         if(!$result){
 			throw new TransactionException("Transaction COMMIT failed");
 		}
@@ -265,7 +264,6 @@ class Instance {
 	function transactionRollback(){
         $result = $this->adapter->rollback();
         $this->transactionManager->inTransaction = false;
-		$this->transactionManager->transactionCount++;
         if(!$result){
             throw new TransactionException("Transaction ROLLBACK failed");
         }
@@ -285,7 +283,7 @@ class Instance {
 	
 	function transaction($method, $retries = 5, $auto_de_nest = true){
         if($this->inTransaction() && $auto_de_nest){
-            return $method();
+			return $method();
         }
 
         $ex = null;
@@ -301,10 +299,13 @@ class Instance {
 					$this->transactionTooLong();
 				}
                 return $ret;
-            } catch (TransactionException $ex) {
+            }
+			catch(TransactionException $ex){
+				$this->transactionRollback();
+			}
+			catch (\Exception $ex) {
                 $this->transactionRollback();
-            } finally {
-                $this->transactionRollback();
+				throw $ex;
             }
 
             //Delay for retry 2 onwards to try and reduce thrashing. 100ms per retry

@@ -33,8 +33,9 @@ class TransactionManager {
         $toExecute = $this->onCommit;
         $this->onCommit = array();
         foreach($toExecute as $c){
-            $c();
+            $c($this->transactionCount);
         }
+        $this->transactionCount++;
     }
 
     function registerOnRollback($function){
