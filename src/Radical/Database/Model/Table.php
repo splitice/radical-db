@@ -579,6 +579,33 @@ abstract class Table implements ITable, \JsonSerializable {
 		
 		return new Table\TableSet($obj, get_called_class());
 	}
+
+	/**
+	 * This function gets all rows that have one of the specified IDs
+	 *
+	 * @param array $ids
+	 * @throws \Exception
+	 * @return \Radical\Database\Model\Table\TableSet|static[]
+	 */
+	static function getAllIds($ids){
+		if(!count($ids)){
+			//Ugly :(
+			return static::getAll(new Parts\Expression\Comparison('1','0','=',true,true));
+		}
+		$orm = ORM\Manager::getModel(TableReference::getByTableClass(get_called_class()));
+
+		if(count($orm->id) == 1){
+			$expr = new Parts\Expression\Comparison($orm->id[0], new Parts\Expression\In($ids));
+			return static::getAll($expr);
+		}else{
+			$ret = array();
+			foreach($ids as $id){
+				$ret[] = static::fromId($id);
+			}
+			return $ret;
+		}
+	}
+
 	private static function _select(){
 		return new SQL\SelectStatement(static::TABLE);
 	}

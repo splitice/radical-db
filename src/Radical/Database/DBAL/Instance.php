@@ -82,23 +82,17 @@ class Instance {
 			}else{
 				$error = $this->Error();
 				file_put_contents('/tmp/last_sql.err', $sql);
-				$exception = new Exception\QueryError ($sql, $error);
 				if (!$is_retry) {
-					if($errno == 1412 || $errno == 1213  || $errno == 1205){
-						$exception = null;
-					}
-					if($exception) {
-						$this->call_filter('error_handler', $exception);
-					}
-					if($exception === null){
-						if($this->inTransaction()){
-							$exception = new TransactionException($error);
-						}else {
-							return $this->query($sql, $timeout, true);
-						}
+					$this->call_filter('error_handler', $error);
+					if($error === null){
+						return $this->query($sql, $timeout, true);
 					}
 				}
-				throw $exception;
+				if($this->inTransaction()){
+					$exception = new TransactionException($error);
+				}else {
+					throw new Exception\QueryError ($sql, $error);
+				}
 			}
 		} else {
 			\Radical\DB::$query_log->addQuery ( $sql ); //add query to log
