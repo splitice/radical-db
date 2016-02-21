@@ -22,7 +22,7 @@ class TransactionManager {
 
     function registerOnCommit($function){
         if(!$this->instance->inTransaction()){
-            $function();
+            $function($this->transactionCount);
             return false;
         }
         $this->onCommit[] = $function;

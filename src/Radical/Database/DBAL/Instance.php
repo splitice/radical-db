@@ -79,29 +79,29 @@ class Instance {
 			if(!$is_retry && ($errno == 2006 || $errno == 2013)){
 				$this->reConnect();
 				return $this->Q($sql,$timeout,true);
-			}else{
-				$error = $this->Error();
-				file_put_contents('/tmp/last_sql.err', $sql);
-				if (!$is_retry) {
-					$this->call_filter('error_handler', $error);
-					if($error === null){
-						return $this->query($sql, $timeout, true);
-					}
-				}
-				if($this->inTransaction()){
-					$exception = new TransactionException($error);
-				}else {
-					throw new Exception\QueryError ($sql, $error);
+			}
+
+			$error = $this->Error();
+			file_put_contents('/tmp/last_sql.err', $sql);
+			if (!$is_retry) {
+				$this->call_filter('error_handler', $error);
+				if($error === null){
+					return $this->query($sql, $timeout, true);
 				}
 			}
-		} else {
-			\Radical\DB::$query_log->addQuery ( $sql ); //add query to log
+			if($this->inTransaction()){
+				throw new TransactionException($error);
+			}
+
+			throw new Exception\QueryError ($sql, $error);
+		}
+
+		\Radical\DB::$query_log->addQuery ( $sql ); //add query to log
 	
-			if ($res === true) { //Not a SELECT, SHOW, DESCRIBE or EXPLAIN
-				return static::NOT_A_RESULT;
-			} else {
-				return new DBAL\Result($res,$this);
-			}
+		if ($res === true) { //Not a SELECT, SHOW, DESCRIBE or EXPLAIN
+			return static::NOT_A_RESULT;
+		} else {
+			return new DBAL\Result($res,$this);
 		}
 	}
 	
