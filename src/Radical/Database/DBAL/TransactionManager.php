@@ -14,6 +14,7 @@ class TransactionManager {
     public $inTransaction = false;
     private $onRollback = array();
     private $onCommit = array();
+    private $beforeCommit = array();
     private $instance;
 
     function __construct(Instance $instance){
@@ -27,6 +28,24 @@ class TransactionManager {
         }
         $this->onCommit[] = $function;
         return true;
+    }
+
+    function registerBeforeCommit($function){
+        if(!$this->instance->inTransaction()){
+            $function($this->transactionCount);
+            return false;
+        }
+        $this->beforeCommit[] = $function;
+        return true;
+    }
+
+    function handleBeforeCommit(){
+        $toExecute = $this->beforeCommit;
+        $this->beforeCommit = array();
+        foreach($toExecute as $c){
+            $c($this->transactionCount);
+        }
+        $this->transactionCount++;
     }
 
     function handleOnCommit(){
@@ -53,5 +72,9 @@ class TransactionManager {
         foreach($toExecute as $c){
             $c();
         }
+    }
+
+    function clearAfterCommitOrRollback(){
+        $this->onRollback = $this->onCommit = $this->beforeCommit = array();
     }
 }

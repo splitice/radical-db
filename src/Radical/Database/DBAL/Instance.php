@@ -76,7 +76,7 @@ class Instance {
 	
 		if ($res === false) { //Failure
 			$errno = mysqli_errno( $mysqli );
-			if(!$is_retry && ($errno == 2006 || $errno == 2013)){
+			if(!$is_retry && ($errno == 2006 || $errno == 2013 || ($errno == 1213 && !$this->inTransaction()))){
 				$this->reConnect();
 				return $this->Q($sql,$timeout,true);
 			}
@@ -248,12 +248,14 @@ class Instance {
 		$this->transactionManager->inTransaction = true;
 	}
 	function transactionCommit(){
+		$this->transactionManager->handleBeforeCommit();
 		$result = $this->adapter->commit();
         $this->transactionManager->inTransaction = false;
         if(!$result){
 			throw new TransactionException("Transaction COMMIT failed");
 		}
         $this->transactionManager->handleOnCommit();
+		$this->transactionManager->clearAfterCommitOrRollback();
 	}
 	function transactionRollback(){
         $result = $this->adapter->rollback();
@@ -262,6 +264,7 @@ class Instance {
             throw new TransactionException("Transaction ROLLBACK failed");
         }
         $this->transactionManager->handleOnRollback();
+		$this->transactionManager->clearAfterCommitOrRollback();
 	}
 	function transactionId(){
 		return $this->instanceId . '-' . $this->transactionManager->transactionCount;
