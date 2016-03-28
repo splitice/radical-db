@@ -6,6 +6,7 @@ use Radical\Basic\String\Number;
 use Radical\Database\IToSQL;
 use Radical\Database\SQL\Parts\Expression\Comparison;
 use Radical\Database\SQL\Parts\Expression\IComparison;
+use Radical\Database\SQL\Parts\Where;
 use Radical\Database\SQL\Parts\WhereAND;
 
 abstract class FilterPartBase extends ArrayPartBase {
@@ -13,7 +14,7 @@ abstract class FilterPartBase extends ArrayPartBase {
 	const AUTO_NULL = true;
 	
 	function _Set($k,$v){
-		if($k === null || Number::is($k) ){			
+		if($k === null || Number::is($k) ){
 			if($v instanceof IToSQL){
 				//Add(WhereAnd | WhereOr) -> Append
 				//Add(Statement) -> WhereAnd -> Append
@@ -61,11 +62,17 @@ abstract class FilterPartBase extends ArrayPartBase {
 			$this->data[] = WhereAND::fromAssign($k,$v,$op,static::AUTO_NULL);
 		}
 	}
-	function toSQL(){
+
+	function getInner(){
 		$ret = '';
 		foreach(array_values($this->data) as $k=>$v){
 			$ret .= $v->toSQL(!$k);
 		}
+		return $ret;
+	}
+
+	function toSQL(){
+		$ret = $this->getInner();
 		if($ret){
 			$ret = static::PART_NAME.' '.$ret;
 		}

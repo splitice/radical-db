@@ -433,18 +433,33 @@ abstract class Table implements ITable, \JsonSerializable {
 		//Get Class
 		try{
 			//Use schema
+			$found = false;
+			$where = new Parts\Where();
+			$from_table = null;
 			foreach($this->orm->references as $ref){
 				if($ref['from_table']->getName() == $className){
+					$from_table = $ref['from_table'];
                     $field = $this->getSQLField($ref['to_field']);
-                    if($field === null){
-                        $select = new Parts\Where();
-                        $select[] = 'FALSE';
-                    }else {
-                        $select = array($ref['from_field'] => $field);
+                    if($field !== null){
+						$compare = new Parts\Expression\Comparison($ref['from_field'], $field);
+						if($found){
+							$compare = new Parts\WhereOR($compare);
+						}
+						$where[] = $compare;
                     }
-					return $this->_related_cache($className,$ref['from_table']->getAll($select));
+					$found = true;
 				}
 			}
+			if($found) {
+				if ($where->count() == 0) {
+					$where[] = 'FALSE';
+				}elseif($where->count() != 1){
+					$where = new Parts\Where($where);
+				}
+
+				return $this->_related_cache($className,$from_table->getAll($where));
+			}
+
 			
 			//Fallback, not schema related so try a fetch
 			$relationship = TableReference::getByTableClass($className);
@@ -459,6 +474,7 @@ abstract class Table implements ITable, \JsonSerializable {
 				return $this->_related_cache($className,$relationship->getAll($select));
 			}
 		}catch(\Exception $ex){
+			die(var_dump($ex));
 			throw new \BadMethodCallException('Relationship doesnt exist: unable to relate');
 		}
 		

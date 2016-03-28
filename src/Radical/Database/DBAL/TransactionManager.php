@@ -45,7 +45,6 @@ class TransactionManager {
         foreach($toExecute as $c){
             $c($this->transactionCount);
         }
-        $this->transactionCount++;
     }
 
     function handleOnCommit(){
