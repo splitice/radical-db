@@ -90,7 +90,9 @@ class Instance {
 				}
 			}
 			if($this->inTransaction()){
-				throw new TransactionException($error);
+				if($errno == 1205 || $errno == 1213 || $errno == 1689) {
+					throw new TransactionException($error);
+				}
 			}
 
 			throw new Exception\QueryError ($sql, $error);
@@ -238,17 +240,50 @@ class Instance {
 	function numRows($res){
 		return mysqli_num_rows($res);
 	}
+
+	/* Start / End savepoint */
+	function savepointStart(){
+		if(!$this->transactionManager->inTransaction){
+			throw new TransactionException("To create a savepoint you must be in transaction");
+		}
+		if(!$this->adapter->savepointStart($this->transactionManager->savepoints++)){
+			throw new BeforeTransactionException("Failed to create savepoint");
+		}
+	}
+	function savepointRollback(){
+		if(!$this->adapter->savepointRollback(--$this->transactionManager->savepoints)){
+			throw new TransactionException("Failed to rollback savepoint");
+		}
+		$this->transactionManager->handleOnRollback();
+		$this->transactionManager->clearAfterCommitOrRollback();
+	}
+	function savepointCommit(){
+		try {
+			$this->transactionManager->handleBeforeCommit();
+		}catch(\Exception $ex){
+			throw new Exception\BeforeCommitException('An exception occured before commit', 0, $ex);
+		}
+		if(!$this->adapter->savepointCommit(--$this->transactionManager->savepoints)){
+			throw new TransactionException("Failed to commit savepoint");
+		}
+		$this->transactionManager->handleOnCommit();
+		$this->transactionManager->clearAfterCommitOrRollback();
+	}
 	
 	/* Start / End transaction */
 	function transactionStart(){
 		$result = $this->adapter->beginTransaction();
         if(!$result){
-            throw new TransactionException("Transaction BEGIN failed");
+            throw new BeforeTransactionException("Transaction BEGIN failed");
         }
 		$this->transactionManager->inTransaction = true;
 	}
 	function transactionCommit(){
-		$this->transactionManager->handleBeforeCommit();
+		try {
+			$this->transactionManager->handleBeforeCommit();
+		}catch(\Exception $ex){
+			throw new Exception\BeforeCommitException('An exception occured before commit', 0, $ex);
+		}
 		$result = $this->adapter->commit();
         $this->transactionManager->inTransaction = false;
         if(!$result){
@@ -278,30 +313,61 @@ class Instance {
 		file_put_contents('/tmp/transaction_long.txt',$e->getTraceAsString());
 	}
 	
-	function transaction($method, $retries = 5, $auto_de_nest = true){
-        if($this->inTransaction() && $auto_de_nest){
-			return $method();
-        }
+	function transaction($method, $retries = 5, $auto_de_nest = false){
+        $savepoint = false;
+		if($this->inTransaction()) {
+			if ($auto_de_nest) {
+				return $method();
+			}
+			$savepoint = true;
+		}
 
         $ex = null;
 
         for($i=0;$i<$retries;$i++) {
             try {
-				$start = microtime(true);
-                $this->transactionStart();
+				if($savepoint){
+					$this->savepointStart();
+				}else {
+					$start = microtime(true);
+					$this->transactionStart();
+				}
                 $ret = $method();
-                $this->transactionCommit();
-				$end = microtime(true);
-				if(($start + 1.5) < $end){
-					$this->transactionTooLong();
+				if($savepoint){
+					$this->savepointCommit();
+				}else {
+					$this->transactionCommit();
+					$end = microtime(true);
+					if(($start + 1.5) < $end){
+						$this->transactionTooLong();
+					}
 				}
                 return $ret;
             }
+			catch(Exception\BeforeCommitException $ex){
+				if($savepoint) {
+					$this->savepointRollback();
+				}else{
+					$this->transactionRollback();
+				}
+				throw $ex->getPrevious();
+			}
+			catch(BeforeTransactionException $ex){
+				throw $ex;
+			}
 			catch(TransactionException $ex){
-				$this->transactionRollback();
+				if($savepoint) {
+					$this->savepointRollback();
+				}else{
+					$this->transactionRollback();
+				}
 			}
 			catch (\Exception $ex) {
-                $this->transactionRollback();
+				if($savepoint) {
+					$this->savepointRollback();
+				}else{
+					$this->transactionRollback();
+				}
 				throw $ex;
             }
 
@@ -312,6 +378,6 @@ class Instance {
         }
 
         // $i == $retries
-        throw new TransactionException("Maximum of ".$retries.' exceeded',0,$ex);
+        throw new TransactionException("Maximum of ".$retries.' retrues exceeded',0,$ex);
 	}
 }

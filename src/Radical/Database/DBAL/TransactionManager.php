@@ -15,6 +15,7 @@ class TransactionManager {
     private $onRollback = array();
     private $onCommit = array();
     private $beforeCommit = array();
+    public $savepoints = 0;
     private $instance;
 
     function __construct(Instance $instance){
