@@ -56,19 +56,18 @@ class MySQLConnection implements IConnection {
 	}
 
 
-
-
+	/* Savepoints */
 	function savepointStart($name){
 		return $this->connect()->savepoint($name);
 	}
 	function savepointRollback($name){
-		$this->mysqli->query('ROLLBACK TO SAVEPOINT '.$name);
-		return true;
+		return $this->mysqli->query('ROLLBACK TO SAVEPOINT '.$name);
 	}
 	function savepointCommit($name){
 		return $this->mysqli->release_savepoint($name);
 	}
 
+	/* Transactions */
     function beginTransaction(){
         return $this->connect()->autocommit(false);
     }

@@ -246,12 +246,12 @@ class Instance {
 		if(!$this->transactionManager->inTransaction){
 			throw new TransactionException("To create a savepoint you must be in transaction");
 		}
-		if(!$this->adapter->savepointStart($this->transactionManager->savepoints++)){
+		if(!$this->adapter->savepointStart('s'.($this->transactionManager->savepoints++))){
 			throw new BeforeTransactionException("Failed to create savepoint");
 		}
 	}
 	function savepointRollback(){
-		if(!$this->adapter->savepointRollback(--$this->transactionManager->savepoints)){
+		if(!$this->adapter->savepointRollback('s'.--$this->transactionManager->savepoints)){
 			throw new TransactionException("Failed to rollback savepoint");
 		}
 		$this->transactionManager->handleOnRollback();
@@ -263,7 +263,7 @@ class Instance {
 		}catch(\Exception $ex){
 			throw new Exception\BeforeCommitException('An exception occured before commit', 0, $ex);
 		}
-		if(!$this->adapter->savepointCommit(--$this->transactionManager->savepoints)){
+		if(!$this->adapter->savepointCommit('s'.--$this->transactionManager->savepoints)){
 			throw new TransactionException("Failed to commit savepoint");
 		}
 		$this->transactionManager->handleOnCommit();
