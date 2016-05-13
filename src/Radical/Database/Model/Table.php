@@ -396,7 +396,8 @@ abstract class Table implements ITable, \JsonSerializable {
 					$ret = $this->_getId();
 				}
 			}else{
-				$this->$actionPart = $class::fromId($this->$actionPart);
+				$withUpdate = $a == 'update' || $a == 'for_update';
+				$this->$actionPart = $class::fromId($this->$actionPart, $withUpdate);
 			}
 		}
 		if(isset($a[0]) && $a[0] == 'id' && is_object($this->$actionPart)){
@@ -423,12 +424,14 @@ abstract class Table implements ITable, \JsonSerializable {
      * @throws \BadMethodCallException
      * @returns \Radical\Database\Model\Table\TableSet
      */
-    protected function call_get_related($className){
+    protected function call_get_related($className, $a){
 		//Cacheable table provides this
 		$ret = $this->_related_cache_get($className);
 		if($ret !== null){
 			return $ret;
 		}
+		
+		$forUpdate = $a == 'update' || $a = 'for_update';
 		
 		//Get Class
 		try{
@@ -457,7 +460,7 @@ abstract class Table implements ITable, \JsonSerializable {
 					$where = new Parts\Where($where);
 				}
 
-				return $this->_related_cache($className,$from_table->getAll($where));
+				return $this->_related_cache($className,$from_table->getAll($where, $forUpdate));
 			}
 
 			
@@ -471,7 +474,7 @@ abstract class Table implements ITable, \JsonSerializable {
                     $select = new Parts\Where();
                     $select[] = 'FALSE';
                 }
-				return $this->_related_cache($className,$relationship->getAll($select));
+				return $this->_related_cache($className,$relationship->getAll($select, $forUpdate));
 			}
 		}catch(\Exception $ex){
 			die(var_dump($ex));
@@ -529,7 +532,7 @@ abstract class Table implements ITable, \JsonSerializable {
 				//Remove the pluralising s from the end
 				$className = substr($className,0,-1);
 				
-				return $this->call_get_related($className);
+				return $this->call_get_related($className, $a);
 			}else{
 				throw new \Exception('Cant get an array of something that isnt a model - '.get_called_class().'::'.$actionPart);
 			}
@@ -544,12 +547,13 @@ abstract class Table implements ITable, \JsonSerializable {
 		}
 		throw new \BadMethodCallException('Not a valid function: '.$m);
 	}
-	protected static function _getAll($sql = ''){
+	protected static function _getAll($sql = '', $forUpdate = false){
 		$obj = static::_select();
 		if(is_array($sql)){
-			$obj = static::_fromFields($sql);
+			$obj = static::_fromFields($sql, $forUpdate);
 		}elseif($sql instanceof Parts\Where){
 			$obj = static::_select()
+				->for_update($forUpdate)
 				->where($sql);
 		}elseif($sql instanceof IToSQL){
 			if($sql instanceof IMergeStatement){
@@ -557,6 +561,7 @@ abstract class Table implements ITable, \JsonSerializable {
 			}else{
 				$obj = static::_select()->where($sql);
 			}
+			$obj->for_update($forUpdate);
 		}elseif($sql){
 			throw new \Exception('Invalid SQL Type');
 		}
@@ -590,8 +595,8 @@ abstract class Table implements ITable, \JsonSerializable {
 	 * @throws \Exception
 	 * @return \Radical\Database\Model\Table\TableSet|static[]
 	 */
-	static function getAll($sql = ''){
-		$obj = static::_getAll($sql);
+	static function getAll($sql = '', $forUpdate = false){
+		$obj = static::_getAll($sql, $forUpdate);
 		
 		return new Table\TableSet($obj, get_called_class());
 	}
@@ -603,7 +608,7 @@ abstract class Table implements ITable, \JsonSerializable {
 	 * @throws \Exception
 	 * @return \Radical\Database\Model\Table\TableSet|static[]
 	 */
-	static function getAllIds($ids){
+	static function getAllIds($ids, $forUpdate = false){
 		if(!count($ids)){
 			//Ugly :(
 			return static::getAll(new Parts\Expression\Comparison('1','0','=',true,true));
@@ -612,11 +617,11 @@ abstract class Table implements ITable, \JsonSerializable {
 
 		if(count($orm->id) == 1){
 			$expr = new Parts\Expression\Comparison($orm->id[0], new Parts\Expression\In($ids));
-			return static::getAll($expr);
+			return static::getAll($expr, $forUpdate);
 		}else{
 			$ret = array();
 			foreach($ids as $id){
-				$ret[] = static::fromId($id);
+				$ret[] = static::fromId($id, $forUpdate);
 			}
 			return $ret;
 		}
@@ -625,7 +630,7 @@ abstract class Table implements ITable, \JsonSerializable {
 	private static function _select(){
 		return new SQL\SelectStatement(static::TABLE);
 	}
-	private static function _fromFields(array $fields){
+	private static function _fromFields(array $fields, $forUpdate){
 		$table = TableReference::getByTableClass(get_called_class());
 		$orm = ORM\Manager::getModel($table);
 
@@ -648,6 +653,7 @@ abstract class Table implements ITable, \JsonSerializable {
 		$where = new Parts\Where($prefixedFields);
 
 		$sql = static::_select()
+					->for_update($forUpdate)
 					->where($where);
 
 		return $sql;
@@ -660,8 +666,8 @@ abstract class Table implements ITable, \JsonSerializable {
 	 * @param array $fields
      * @return static
 	 */
-	static function fromFields(array $fields){
-		$res = \Radical\DB::Query(static::_fromFields($fields));
+	static function fromFields(array $fields, $forUpdate = false){
+		$res = \Radical\DB::Query(static::_fromFields($fields, $forUpdate));
 		$row = $res->Fetch();
 		if($row){
 			return static::fromSQL($row);
@@ -710,7 +716,7 @@ abstract class Table implements ITable, \JsonSerializable {
 					$id = $idk;
 				}
 				
-				$sql = static::_fromFields($id);
+				$sql = static::_fromFields($id, $forUpdate);
 			}else{
 				//Input = String, Needed Array
 				if(count($orm->id) > 1){
