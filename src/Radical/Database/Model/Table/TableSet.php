@@ -42,6 +42,14 @@ class TableSet extends \Radical\Basic\Arr\Object\IncompleteObject {
 		return \Radical\DB::Query($this->sql);
 	}
 	function yieldData(){
+		//This is the second time, lets cache this time
+		if($this->data === null && $this->count){
+			return new \ArrayIterator($this->getData());
+		}
+
+		return $this->_yieldData();
+	}
+	function _yieldData(){
 		if($this->data){
 			foreach($this->data as $d){
 				yield $d;

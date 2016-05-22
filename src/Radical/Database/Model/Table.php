@@ -420,7 +420,8 @@ abstract class Table implements ITable, \JsonSerializable {
 	}
 
     /**
-     * @param $className
+	 * @param $className
+	 * @param $a
      * @throws \BadMethodCallException
      * @returns \Radical\Database\Model\Table\TableSet
      */

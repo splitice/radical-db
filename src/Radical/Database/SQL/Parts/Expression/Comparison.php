@@ -12,6 +12,9 @@ class Comparison extends Internal\PartBase implements IComparison {
 	
 	function __construct($a,$b,$operation = '=',$autoNull = true, $escaped = false){
 		$this->a = $a;
+		if(is_array($b)){
+			throw new \InvalidArgumentException('$b can not be an array');
+		}
 		$this->b = $b;
 		$this->operation = $operation;
 		$this->autoNull = $autoNull;
@@ -36,7 +39,8 @@ class Comparison extends Internal\PartBase implements IComparison {
 		}
 		
 		$op = $this->operation;
-		if($this->autoNull && $this->b === null){
+		$b = $this->b;
+		if($this->autoNull && $b === null){
 			if($op == '='){
 				$op = 'IS';
 			}else if($op == '!=' || $op == '<>'){
@@ -48,9 +52,9 @@ class Comparison extends Internal\PartBase implements IComparison {
 				}
 			}
             $this->escaped = true;
-            $this->b = 'NULL';
+            $b = 'NULL';
 		}
-		
-		return $a.' '.$op.' '.($this->escaped?$this->b:\Radical\DB::E($this->b));
+
+		return $a.' '.$op.' '.($this->escaped?$b:\Radical\DB::E($b));
 	}
 }

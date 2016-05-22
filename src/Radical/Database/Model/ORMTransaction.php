@@ -12,7 +12,7 @@ class ORMTransaction
 		}
 
 		$instance = \Radical\DB::getInstance();
-		return $instance->transaction(function() use($args, $function){
+		return $instance->transaction(function() use($updating, $function){
 			return $function(...$updating);
 		});
 	}
