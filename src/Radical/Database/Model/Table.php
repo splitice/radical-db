@@ -6,6 +6,7 @@ use Radical\Database\DBAL;
 use Radical\Database\DynamicTypes\IDynamicType;
 use Radical\Database\DynamicTypes\IDynamicValidate;
 use Radical\Database\DynamicTypes\INullable;
+use Radical\Database\Exception\DatabaseException;
 use Radical\Database\IToSQL;
 use Radical\Database\Model\Table\TableSet;
 use Radical\Database\ORM;
@@ -789,7 +790,10 @@ abstract class Table implements ITable, \JsonSerializable {
 		}
 		
 		$id = \Radical\DB::Insert($this->orm->tableInfo['name'],$data,$ignore?$ignore:null);
-		
+		if ($id === false) {
+			throw new \RuntimeException('Unable to insert into table '.$this->orm->tableInfo['name']);
+		}
+
 		foreach($data as $k=>$v){
 			$this->_store[$this->orm->mappings[$k]] = $v;
 		}
