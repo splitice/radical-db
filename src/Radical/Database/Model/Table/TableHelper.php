@@ -33,7 +33,7 @@ class TableHelper
 
 	/**
 	 * @param TableSet}Table[] $arr
-	 * @return TableSet|Table[]
+	 * @return string[]
 	 */
 	public static function idMap($arr){
 		$ret = array();
@@ -41,6 +41,14 @@ class TableHelper
 			$ret[$a->getId()] = $a;
 		}
 		return $ret;
+	}
+
+	/**
+	 * @param TableSet}Table[] $arr
+	 * @return string[]
+	 */
+	public static function ids($arr){
+		return array_keys(self::idMap($arr));
 	}
 
 	/**

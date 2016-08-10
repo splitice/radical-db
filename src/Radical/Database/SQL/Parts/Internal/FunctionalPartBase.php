@@ -5,6 +5,9 @@ abstract class FunctionalPartBase extends ArrayPartBase {
 	const PART_NAME = '';
 	
 	function __construct($data){
+		if(!is_array($data)){
+			throw new \Exception('$data must be an array');
+		}
 		$this->data = $data;
 	}
 	
