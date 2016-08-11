@@ -4,6 +4,7 @@
 		"php" : ">=5.4",
 		"splitice/radical-basic" : "*",
 		"splitice/radical-common" : "*",
+		"splitice/radical-errorhandling" : "*",
 		"splitice/event-trait" : "*",
 		"symfony/validator" : "2.4.0"
 	},

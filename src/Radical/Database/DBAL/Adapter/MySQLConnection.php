@@ -1,30 +1,19 @@
 <?php
 namespace Radical\Database\DBAL\Adapter;
 
+use Radical\Database\DBAL\Adapter\MySQL\IMysqlConnector;
 use Radical\Database\DBAL\Instance;
 use Radical\Database\Exception;
 
 class MySQLConnection implements IConnection {
+	private $connector;
 	/**
 	 * @var \mysqli
 	 */
-	private $mysqli;
-	
-	//
-	private $host;
-	private $user;
-	private $pass;
-	public $db;
-	private $port;
-	private $compression;
-	
-	function __construct($host, $user, $pass, $db = null, $port = 3306, $compression=true){
-		$this->host = $host;
-		$this->user = $user;
-		$this->pass = $pass;
-		$this->db = $db;
-		$this->port = $port;
-		$this->compression = $compression;
+	private $last_connection;
+
+	function __construct(IMysqlConnector $connector){
+		$this->connector = $connector;
 	}
 	
 	/**
@@ -34,25 +23,8 @@ class MySQLConnection implements IConnection {
 	 * @return \mysqli
 	 */
 	function connect(){
-		if($this->isConnected()){
-			return $this->mysqli;
-		}
-		
-		$this->mysqli = mysqli_init();
-
-		$this->mysqli->options(MYSQLI_OPT_CONNECT_TIMEOUT, 2);
-		
-		//Connect - With compression
-		$connection_status = mysqli_real_connect ( $this->mysqli, $this->host, 
-				$this->user, $this->pass, $this->db, $this->port,
-				null, $this->compression?MYSQLI_CLIENT_COMPRESS:0 );
-		
-		if (! $connection_status) {
-            $this->mysqli = null;
-			throw new Exception\ConnectionException ( $this->__toString(), $this->Error() );
-		}
-		
-		return $this->mysqli;
+		$this->last_connection = $this->connector->getConnection($this);
+		return $this->last_connection;
 	}
 
 
@@ -61,10 +33,10 @@ class MySQLConnection implements IConnection {
 		return $this->connect()->savepoint($name);
 	}
 	function savepointRollback($name){
-		return $this->mysqli->query('ROLLBACK TO SAVEPOINT '.$name);
+		return $this->last_connection->query('ROLLBACK TO SAVEPOINT '.$name);
 	}
 	function savepointCommit($name){
-		return $this->mysqli->release_savepoint($name);
+		return $this->last_connection->release_savepoint($name);
 	}
 
 	/* Transactions */
@@ -73,49 +45,37 @@ class MySQLConnection implements IConnection {
     }
 	
 	function commit(){
-		$ret = $this->mysqli->commit();
-		return $this->mysqli->autocommit(true) && $ret;
+		$ret = $this->last_connection->commit();
+		return $this->last_connection->autocommit(true) && $ret;
 	}
 	
 	function rollback(){
-		$ret = $this->mysqli->rollback();
-		return $this->mysqli->autocommit(true) && $ret;
+		$ret = $this->last_connection->rollback();
+		return $this->last_connection->autocommit(true) && $ret;
 	}
 	
 	function ping(\mysqli $mysqli=null){
 		if(!$mysqli){
-			$mysqli = $this->Connect();
+			$mysqli = $this->connect();
 		}
 
 		//Ping
 		return $mysqli->ping();		
 	}
 	
-	/**
-	 * is the MySQL server connected?
-	 * @return boolean
-	 */
-	private $_connectCache;
-	private $_connectHit;
-	function isConnected() {
-		if(php_sapi_name() == 'fpm-fcgi') return $this->mysqli;//Web requests are short
-		
-		return ($this->mysqli && @$this->mysqli->ping());
-	}
-	
 	function toInstance(){
-		return new Instance($this,$this->host,$this->user,$this->pass,$this->db,$this->port,$this->compression);
+		return new Instance($this,$this->connector);
 	}
 	
 	function reConnect(){
-		$this->Close();
-		$this->Connect();
+		$this->close();
+		$this->connect();
 	}
 	
 	function close(){
-		if($this->mysqli){
-			mysqli_close($this->mysqli);
-			$this->mysqli = null;
+		if($this->last_connection){
+			mysqli_close($this->last_connection);
+			$this->last_connection = null;
 		}
 	}
 	
@@ -131,7 +91,7 @@ class MySQLConnection implements IConnection {
 			throw new \Exception('Empty Query');
 		}
 		
-		return @$this->Connect()->query ( $sql );
+		return @$this->connect()->query ( $sql );
 	}
 	
 	function prepare($sql){
@@ -140,32 +100,32 @@ class MySQLConnection implements IConnection {
 			throw new \Exception('Empty Query');
 		}
 	
-		return new MySQL\PreparedStatement($sql);
+		return new MySQL\PreparedStatement($sql, $this);
 	}
 	
 	function escape($string){
-		return $this->Connect()->real_escape_string($string);
+		return $this->connect()->real_escape_string($string);
 	}
 	
 	/**
 	 * Return the last MySQL error
 	 */
 	function error() {
-		return $this->mysqli?$this->mysqli->error:null;
+		return $this->last_connection?$this->last_connection->error:null;
 	}
 	
 	/**
 	 * Return the number of affected rows of the last MySQL query
 	 */
 	function affectedRows() {
-		return mysqli_affected_rows ( $this->Connect() );
+		return mysqli_affected_rows ( $this->connect() );
 	}
 	
 	/**
 	 * @return string
 	 */
 	function __toString(){
-		return 'mysqli://' . $this->user . '@' . $this->host . ':' . $this->port . ($this->compression?'z':'') . '/' . $this->db;
+		return 'mysqli://' . $this->connector;
 	}
 	
 	static function fromArray(array $from){

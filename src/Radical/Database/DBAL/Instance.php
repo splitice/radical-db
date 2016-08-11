@@ -27,8 +27,8 @@ class Instance {
 
 	private $instanceId;
 
-	function __construct(Adapter\IConnection $adapter, $host, $user, $pass, $db = null, $port = 3306, $compression=true){
-		$this->adapter = new $adapter($host, $user, $pass, $db, $port, $compression);
+	function __construct(Adapter\IConnection $adapter, ...$args){
+		$this->adapter = new $adapter(...$args);
         $this->transactionManager = new TransactionManager($this);
 		$this->instanceId = crc32(rand() . microtime(true) . rand());
 		$this->hookInit();
