@@ -29,6 +29,11 @@ class MysqlStaticConnector implements IMysqlConnector
 		$this->compression = $compression;
 	}
 
+	function getDb()
+	{
+		return $this->db;
+	}
+
 	/**
 	 * is the MySQL server connected?
 	 * @return boolean
@@ -39,7 +44,7 @@ class MysqlStaticConnector implements IMysqlConnector
 		return ($this->mysqli && @$this->mysqli->ping());
 	}
 
-	function getConnection(MySQLConnection $connection)
+	function getConnection(MySQLConnection $connection, $inTransaction)
 	{
 		if($this->isConnected()){
 			return $this->mysqli;

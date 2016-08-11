@@ -75,17 +75,17 @@ class Cache {
 		self::$pool = \Radical\Cache\PooledCache::get('radical_orm','Memory');
 		
 		global $_SQL;
-		$cfile = '/tmp/'.$_SQL->db;
+		$cfile = '/tmp/'.$_SQL->getDb();
 		if(file_exists($cfile) && filemtime($cfile) >= (time() - 30)){
 			self::$key = file_get_contents($cfile);
 		}else{
 			touch($cfile);
-			$sql = 'SELECT MAX(UNIX_TIMESTAMP( CREATE_TIME )) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = "'.$_SQL->db.'"';
+			$sql = 'SELECT MAX(UNIX_TIMESTAMP( CREATE_TIME )) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = "'.$_SQL->getDb().'"';
 			self::$key = \Radical\DB::Q($sql)->Fetch(Fetch::FIRST);
 			file_put_contents($cfile, self::$key);
 		}
         if(Server::isProduction()){
-            self::$data = self::$pool->get($_SQL->db.'_'.self::$key);
+            self::$data = self::$pool->get($_SQL->getDb().'_'.self::$key);
             register_shutdown_function(function(){
                 Cache::save();
             });
@@ -97,7 +97,7 @@ class Cache {
 	static function save(){
 		global $_SQL;
 		if(self::$changed){
-			self::$pool->set($_SQL->db.'_'.self::$key, self::$data);
+			self::$pool->set($_SQL->getDb().'_'.self::$key, self::$data);
 		}
 	}
 }

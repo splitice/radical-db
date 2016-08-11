@@ -10,7 +10,8 @@ interface IMysqlConnector
 	 * @param MySQLConnection $connection
 	 * @return \mysqli
 	 */
-	function getConnection(MySQLConnection $connection);
+	function getConnection(MySQLConnection $connection, $inTransaction);
 	function isConnected();
+	function getDb();
 	function __toString();
 }

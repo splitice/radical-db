@@ -2,11 +2,14 @@
 namespace Radical\Database\DBAL\Adapter;
 
 use Radical\Database\DBAL\Adapter\MySQL\IMysqlConnector;
+use Radical\Database\DBAL\Adapter\MySQL\MysqlStaticConnector;
 use Radical\Database\DBAL\Instance;
 use Radical\Database\Exception;
 
 class MySQLConnection implements IConnection {
 	private $connector;
+	private $inTransaction = false;
+
 	/**
 	 * @var \mysqli
 	 */
@@ -23,8 +26,13 @@ class MySQLConnection implements IConnection {
 	 * @return \mysqli
 	 */
 	function connect(){
-		$this->last_connection = $this->connector->getConnection($this);
+		$this->last_connection = $this->connector->getConnection($this, $this->inTransaction);
 		return $this->last_connection;
+	}
+
+	function isConnected()
+	{
+		return $this->connector->isConnected();
 	}
 
 
@@ -41,16 +49,19 @@ class MySQLConnection implements IConnection {
 
 	/* Transactions */
     function beginTransaction(){
+    	$this->inTransaction = true;
         return $this->connect()->autocommit(false);
     }
 	
 	function commit(){
 		$ret = $this->last_connection->commit();
+		$this->inTransaction = false;
 		return $this->last_connection->autocommit(true) && $ret;
 	}
 	
 	function rollback(){
 		$ret = $this->last_connection->rollback();
+		$this->inTransaction = false;
 		return $this->last_connection->autocommit(true) && $ret;
 	}
 	
@@ -120,7 +131,11 @@ class MySQLConnection implements IConnection {
 	function affectedRows() {
 		return mysqli_affected_rows ( $this->connect() );
 	}
-	
+
+	function getDb(){
+		return $this->connector->getDb();
+	}
+
 	/**
 	 * @return string
 	 */
@@ -147,6 +162,6 @@ class MySQLConnection implements IConnection {
 		if(!isset($from['compression'])){
 			$from['compression'] = false;
 		}
-		return new static($from['host'],$from['user'],$from['pass'],$from['db'],$from['port'],$from['compression']);
+		return new static(new MysqlStaticConnector($from['host'],$from['user'],$from['pass'],$from['db'],$from['port'],$from['compression']));
 	}
 }
