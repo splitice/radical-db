@@ -14,6 +14,14 @@ class Set extends DynamicType implements IDynamicType,IDynamicValidate {
 		$this->setValue($value);
 	}
 	function has($name){
+		if(is_array($name)){
+			foreach($name as $n){
+				if(!$this->has($n)){
+					return false;
+				}
+			}
+			return true;
+		}
 		return in_array($name, $this->value);
 	}
 	function validate($value){
