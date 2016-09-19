@@ -16,11 +16,12 @@ class Instance {
 		
 		//parse out fields
 		$fields = array();
+		/** @var \ReflectionProperty $p */
 		foreach($properties as $p){
-			if(in_array('protected',$p['modifiers'])){
-				$name = $p['name'];
+			if(($p->getModifiers() & \ReflectionProperty::IS_PROTECTED) == \ReflectionProperty::IS_PROTECTED){
+				$name = $p->getName();
 				if($name{0} != '_'){
-					$fields[$name] = Docblock::comment($p['docComment']);
+					$fields[$name] = Docblock::comment($p->getDocComment());
 				}
 			}
 		}
