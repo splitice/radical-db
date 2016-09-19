@@ -479,7 +479,6 @@ abstract class Table implements ITable, \JsonSerializable {
 				return $this->_related_cache($className,$relationship->getAll($select, $forUpdate));
 			}
 		}catch(\Exception $ex){
-			die(var_dump($ex));
 			throw new \BadMethodCallException('Relationship doesnt exist: unable to relate');
 		}
 		
