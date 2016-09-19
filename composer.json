@@ -6,7 +6,8 @@
 		"splitice/radical-common" : "*",
 		"splitice/radical-errorhandling" : "*",
 		"splitice/event-trait" : "*",
-		"symfony/validator" : "2.4.0"
+		"symfony/validator" : "2.4.0",
+		"unionofrad/lithium" : "1.2.x-dev"
 	},
 	"keywords" : [
 		"radical-php"
