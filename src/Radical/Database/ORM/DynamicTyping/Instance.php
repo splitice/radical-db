@@ -1,12 +1,11 @@
 <?php
 namespace Radical\Database\ORM\DynamicTyping;
 
-use Radical\Core\Debug\Inspector;
+use lithium\analysis\Inspector;
 use Radical\Database\Model\TableReferenceInstance;
 
 class Instance {
 	public $map = array();
-	private $cache;
 	
 	function __construct(TableReferenceInstance $table){
 		$class = $table->getClass();
