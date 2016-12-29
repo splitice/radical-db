@@ -192,15 +192,22 @@ class SelectStatement extends Internal\StatementBase {
         if($this->from)
 		    $this->from = clone $this->from;
 	}
-	
-	function getCount(){
+
+	function getCountSql(){
 		//Check for entry
 		$count = clone $this;
+		if($count->for_update){
+			$count->for_update = false;
+		}
 		$count->fields('COUNT(*)');
 		$count->remove_limit();
 		//$count->remove_joins();
 		$count->remove_order_by();
+		return $count;
+	}
 	
+	function getCount(){
+		$count = $this->getCountSql();
 		$res = \Radical\DB::Query($count);
 		return $res->Fetch(DBAL\Fetch::FIRST,new Cast\Integer());
 	}

@@ -22,21 +22,29 @@ class TransactionManager {
         $this->instance = $instance;
     }
 
-    function registerOnCommit($function){
+    function registerOnCommit($function, $name = null){
         if(!$this->instance->inTransaction()){
             $function($this->transactionCount);
             return false;
         }
-        $this->onCommit[] = $function;
+        if($name !== null){
+        	$this->onCommit[$name] = $function;
+		}else {
+			$this->onCommit[] = $function;
+		}
         return true;
     }
 
-    function registerBeforeCommit($function){
+    function registerBeforeCommit($function, $name = null){
         if(!$this->instance->inTransaction()){
             $function($this->transactionCount);
             return false;
         }
-        $this->beforeCommit[] = $function;
+		if($name !== null){
+			$this->beforeCommit[$name] = $function;
+		}else {
+			$this->beforeCommit[] = $function;
+		}
         return true;
     }
 
@@ -57,12 +65,16 @@ class TransactionManager {
         $this->transactionCount++;
     }
 
-    function registerOnRollback($function){
+    function registerOnRollback($function, $name = null){
         if(!$this->instance->inTransaction()){
             $function();
             return false;
         }
-        $this->onRollback[] = $function;
+		if($name !== null){
+			$this->onRollback[$name] = $function;
+		} else {
+			$this->onRollback[] = $function;
+		}
         return true;
     }
 

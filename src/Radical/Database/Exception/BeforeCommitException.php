@@ -4,7 +4,7 @@ namespace Radical\Database\Exception;
 
 use Radical\Database\DBAL\TransactionException;
 
-class BeforeTransactionException extends TransactionException
+class BeforeCommitException extends TransactionException
 {
 
 }

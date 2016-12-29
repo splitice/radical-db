@@ -13,6 +13,10 @@ class TableSet extends \Radical\Basic\Arr\Object\IncompleteObject {
 	 */
 	public $sql;
 	public $tableClass;
+	/**
+	 * @var SQL\SelectStatement
+	 */
+	public $count;
 	
 	function __construct(SQL\SelectStatement $sql,$tableClass){
 		$this->sql = $sql;
@@ -92,24 +96,23 @@ class TableSet extends \Radical\Basic\Arr\Object\IncompleteObject {
 	public function count(){
 		return $this->getCount();
 	}
-	
-	private $count;
+
 	function setSQLCount(SelectStatement $sql){
 		$this->count = $sql;
 	}
+	function buildCountSql(){
+		$this->count = $this->sql->getCountSql();
+	}
 	function getCount(){
-		if($this->count !== null){
-			if($this->count instanceof SelectStatement){
-				$this->count = $this->count->query()->fetch(Fetch::FIRST);
-			}
-			return $this->count;
+		if($this->count === null){
+			$this->buildCountSql();
 		}
 		if($this->data){
 			return ($this->count = count($this->data));
 		}
-		
-		$this->count = $this->sql->getCount();
-			
+		if($this->count instanceof SelectStatement){
+			$this->count = $this->count->query()->fetch(Fetch::FIRST);
+		}
 		return $this->count;
 	}
     function __clone(){
