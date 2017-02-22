@@ -112,6 +112,15 @@ class TableReferenceInstance {
 	}
 
 	/**
+	 * @param $id
+	 * @return Table
+	 */
+	function fromId($id){
+		$class = $this->getClass();
+		return $class::fromId($id);
+	}
+
+	/**
 	 * @return \Radical\Database\SQL\SelectStatement
 	 */
 	function select($fields = '*',$type = ''){
