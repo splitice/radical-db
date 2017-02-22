@@ -34,8 +34,12 @@ class Instance {
 		$this->hookInit();
 	}
 	
-	function close(){
-		\Radical\DB::$connectionPool->Free($this);
+	function close($real = false){
+		if($real){
+			$this->adapter->close();
+		}else {
+			\Radical\DB::$connectionPool->Free($this->adapter);
+		}
 	}
 	
 	function __call($func,$args){
@@ -101,9 +105,9 @@ class Instance {
 		\Radical\DB::$query_log->addQuery ( $sql ); //add query to log
 	
 		if ($res === true) { //Not a SELECT, SHOW, DESCRIBE or EXPLAIN
-			return static::NOT_A_RESULT;
+			return new DBAL\Result($this);
 		} else {
-			return new DBAL\Result($res,$this);
+			return new DBAL\RowResult($res,$this);
 		}
 	}
 	

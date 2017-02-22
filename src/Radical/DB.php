@@ -80,8 +80,9 @@ class DB extends DBAL\SQLUtils {
 	}
 
 	static function reConnect(){
-		static::getInstance()->Close();
-		static::getInstance()->Connect();
+		$ins = static::getInstance();
+		$ins->Close(true);
+		$ins->Connect();
 	}
 	
 	static function multiQuery(){
@@ -121,8 +122,8 @@ class DB extends DBAL\SQLUtils {
 	
 	/* Predefined Methods */
 	
-	static function close(){
-		//Close all connections
+	static function close($real = false){
+		static::getInstance()->Close($real);
 	}
 	
 	static function tableExists() {
