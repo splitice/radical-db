@@ -12,7 +12,7 @@ namespace Radical\Database\SQL\Parts;
  */
 
 use Radical\Basic\Arr;
-use Radical\Basic\String\Number;
+use Radical\Basic\StringHelper\Number;
 use Radical\Database\IToSQL;
 use Radical\Database\SQL\Parse\CreateTable;
 use Radical\Database\SQL\Parts\Expression\TableExpression;

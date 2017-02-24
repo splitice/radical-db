@@ -6,7 +6,7 @@ use Radical\Database\SQL\Parts\Expression\TableExpression;
 
 class GroupBy extends Internal\ArrayPartBase {
 	function _Set($k,$v){
-		if($k === null || \Radical\Basic\String\Number::is($k)){
+		if($k === null || \Radical\Basic\StringHelper\Number::is($k)){
 			if(is_array($v)){
 				if(Arr::is_assoc($v)){
 					foreach($v as $k=>$vv){

@@ -2,7 +2,7 @@
 namespace Radical\Database\SQL\Parts\Internal;
 
 use Radical\Basic\Arr;
-use Radical\Basic\String\Number;
+use Radical\Basic\StringHelper\Number;
 use Radical\Database\IToSQL;
 use Radical\Database\SQL\Parts\Expression\Comparison;
 use Radical\Database\SQL\Parts\Expression\IComparison;
