@@ -34,6 +34,12 @@ class MysqlStaticConnector implements IMysqlConnector
 		return $this->db;
 	}
 
+	function selectDb($db)
+	{
+		$this->db = $db;
+		return $this->mysqli->select_db($db);
+	}
+
 	/**
 	 * is the MySQL server connected?
 	 * @return boolean

@@ -33,7 +33,11 @@ class Instance {
 		$this->instanceId = crc32(rand() . microtime(true) . rand());
 		$this->hookInit();
 	}
-	
+
+	function multiQuery($sql){
+		$this->adapter->multiQuery($sql);
+	}
+
 	function close($real = false){
 		if($real){
 			$this->adapter->close();
@@ -86,7 +90,6 @@ class Instance {
 			}
 
 			$error = $this->Error();
-			file_put_contents('/tmp/last_sql.err', $sql);
 			if (!$is_retry) {
 				$this->call_filter('error_handler', $error);
 				if($error === null){
@@ -103,12 +106,16 @@ class Instance {
 		}
 
 		\Radical\DB::$query_log->addQuery ( $sql ); //add query to log
-	
+
+		if($res === null) {
+			return null;
+		}
+
 		if ($res === true) { //Not a SELECT, SHOW, DESCRIBE or EXPLAIN
 			return new DBAL\Result($this);
-		} else {
-			return new DBAL\RowResult($res,$this);
 		}
+
+		return new DBAL\RowResult($res,$this);
 	}
 	
 	/**
@@ -120,6 +127,10 @@ class Instance {
 	 */
 	function q($sql,$timeout=self::QUERY_TIMEOUT){
 		return $this->Query($sql,$timeout);
+	}
+
+	function selectDb($db){
+		$this->adapter->selectDb($db);
 	}
 	
 	function multipleInsert($tbl, $cols, $data, $ignore = false){

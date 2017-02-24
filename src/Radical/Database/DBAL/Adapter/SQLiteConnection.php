@@ -23,7 +23,7 @@ class SQLiteConnection implements IConnection {
 	 */
 	function connect(){
 		if($this->isConnected()){
-			return $this->mysqli;
+			return $this->sqlite;
 		}
 		
 		try {

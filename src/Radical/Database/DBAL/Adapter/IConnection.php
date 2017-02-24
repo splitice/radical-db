@@ -21,6 +21,11 @@ interface IConnection {
 	function prepare($sql);
 	
 	function escape($string);
+
+	function multiQuery($sql);
+
+	function getDb();
+	function selectDb($db);
 	
 	/**
 	 * Return the last MySQL error

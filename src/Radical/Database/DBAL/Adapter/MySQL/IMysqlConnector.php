@@ -13,5 +13,6 @@ interface IMysqlConnector
 	function getConnection(MySQLConnection $connection, $inTransaction);
 	function isConnected();
 	function getDb();
+	function selectDb($db);
 	function __toString();
 }

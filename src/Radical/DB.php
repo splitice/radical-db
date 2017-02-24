@@ -71,13 +71,6 @@ class DB extends DBAL\SQLUtils {
 		//Get Database Instance from connection details
 		return static::$connectionPool->GetInstance($connection);
 	}
-	
-	/**
-	 * @return Database\IConnection
-	 */
-	static function getConnection($adapter_string = null){
-		
-	}
 
 	static function reConnect(){
 		$ins = static::getInstance();
@@ -85,8 +78,12 @@ class DB extends DBAL\SQLUtils {
 		$ins->Connect();
 	}
 	
-	static function multiQuery(){
-		return new DBAL\MultiQuery(self::$con);
+	static function multiQuery($sql = null){
+		if($sql !== null){
+			static::getInstance()->multiQuery($sql);
+			return;
+		}
+		return new DBAL\MultiQuery(self::getInstance());
 	}
 	
 
@@ -152,7 +149,7 @@ class DB extends DBAL\SQLUtils {
 	 *
 	 * @param string $sql
 	 * @param int $timeout
-	 * @return \Radical\Database\DBAL\Result
+	 * @return \Radical\Database\DBAL\RowResult
 	 */
 	static function q($sql,$timeout=DBAL\Instance::QUERY_TIMEOUT){
 		return static::__callStatic(__FUNCTION__, func_get_args());

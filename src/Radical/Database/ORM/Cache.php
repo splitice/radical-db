@@ -43,9 +43,7 @@ class Cache {
 	 * @return ModelData
 	 */
 	static function get($table){
-		if(self::$data === null) {
-            self::init();
-        }
+		self::init();
 		$table = self::key($table);
 		if(isset(self::$data[$table])){
 			return self::$data[$table];
@@ -72,32 +70,28 @@ class Cache {
 	
 	private static $key;
 	static function init(){
-		self::$pool = \Radical\Cache\PooledCache::get('radical_orm','Memory');
-		
-		global $_SQL;
-		$cfile = '/tmp/'.$_SQL->getDb();
-		if(file_exists($cfile) && filemtime($cfile) >= (time() - 30)){
-			self::$key = file_get_contents($cfile);
-		}else{
-			touch($cfile);
-			$sql = 'SELECT MAX(UNIX_TIMESTAMP( CREATE_TIME )) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = "'.$_SQL->getDb().'"';
-			self::$key = \Radical\DB::Q($sql)->Fetch(Fetch::FIRST);
-			file_put_contents($cfile, self::$key);
+		if(self::$data !== null) {
+			return;
 		}
+		self::$pool = \Radical\Cache\PooledCache::get('radical_orm','Memory');
+
         if(Server::isProduction()){
-            self::$data = self::$pool->get($_SQL->getDb().'_'.self::$key);
-            register_shutdown_function(function(){
-                Cache::save();
+        	$key = \Radical\DB::getInstance()->getDb().'_'.self::$key;
+            self::$data = self::$pool->get($key);
+            register_shutdown_function(function() use($key){
+                Cache::save($key);
             });
         }
 
         if(!is_array(self::$data))
             self::$data = array();
 	}
-	static function save(){
-		global $_SQL;
+	static function save($key = null){
 		if(self::$changed){
-			self::$pool->set($_SQL->getDb().'_'.self::$key, self::$data);
+			if($key === null){
+				$key = \Radical\DB::getInstance()->getDb().'_'.self::$key;
+			}
+			self::$pool->set($key, self::$data);
 		}
 	}
 }
