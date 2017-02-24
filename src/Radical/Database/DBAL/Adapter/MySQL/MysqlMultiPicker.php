@@ -1,5 +1,5 @@
 <?php
-namespace Splitice\Radical\Database\Adapter\MySQL;
+namespace Radical\Database\DBAL\Adapter\MySQL;
 
 use Radical\Database\DBAL\Adapter\MySQL\IMysqlConnector;
 use Radical\Database\DBAL\Adapter\MySQLConnection;

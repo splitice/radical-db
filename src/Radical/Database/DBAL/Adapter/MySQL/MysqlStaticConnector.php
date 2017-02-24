@@ -15,7 +15,7 @@ class MysqlStaticConnector implements IMysqlConnector
 	private $host;
 	private $user;
 	private $pass;
-	public $db;
+	private $db;
 	private $port;
 	private $compression;
 
