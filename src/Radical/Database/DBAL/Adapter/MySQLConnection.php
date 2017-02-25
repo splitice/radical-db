@@ -22,14 +22,16 @@ class MySQLConnection implements IConnection {
 	function multiQuery($sql)
 	{
 		$mysqli = $this->connect();
-		if ($mysqli->multi_query($sql)) {
+		if (@$mysqli->multi_query($sql)) {
 			do {
 				/* store first result set */
 				if ($result = $mysqli->store_result()) {
 					$result->free();
 				}
 			} while ($mysqli->next_result());
+			return true;
 		}
+		return false;
 	}
 
 	/**

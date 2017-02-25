@@ -228,10 +228,12 @@ abstract class Table implements ITable, \JsonSerializable {
 	}
 
 	function __construct($in = array(),$prefix = false){
-        $this->hookInit();
 		//Setup object with table specific data
 		$table = TableReference::getByTableClass($this);
 		$this->orm = $table->getORM();
+
+		//Hook
+		$this->hookInit();
 		
 		//Load data into table
 		if($in instanceof DBAL\Row || $prefix){

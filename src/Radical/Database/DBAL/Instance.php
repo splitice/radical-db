@@ -35,7 +35,17 @@ class Instance {
 	}
 
 	function multiQuery($sql){
-		$this->adapter->multiQuery($sql);
+		$res = $this->adapter->multiQuery($sql);
+		if(!$res) {
+			$error = $this->Error();
+			if ($this->inTransaction()) {
+				if ($errno == 1205 || $errno == 1213 || $errno == 1689) {
+					throw new TransactionException($error);
+				}
+			}
+
+			throw new Exception\QueryError ($sql, $error);
+		}
 	}
 
 	function close($real = false){
