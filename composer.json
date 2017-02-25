@@ -7,7 +7,7 @@
 		"splitice/radical-errorhandling" : "*",
 		"splitice/event-trait" : "*",
 		"symfony/validator" : "2.4.0",
-		"unionofrad/lithium" : "~1.0"
+		"unionofrad/lithium" : "~2.0"
 	},
 	"prefer-stable": true,
 	"keywords" : [
@@ -19,5 +19,11 @@
 			"Radical" : "src"
 		}
 	},
-	"type" : "library"
+	"type" : "library",
+	"repositories": [
+    {
+      "type": "git",
+      "url": "https://github.com/splitice/lithium.git"
+    }
+	]
 }
