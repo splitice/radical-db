@@ -415,17 +415,20 @@ abstract class Table implements ITable, \JsonSerializable {
 	}
 	protected function call_get_member($actionPart,$a){
 		$relations = $this->orm->relations;
-		$dbName = $this->orm->reverseMappings[$actionPart];
-		if(isset($relations[$dbName]) && !is_object($this->$actionPart)){
-			$class = $relations[$dbName]->getTableClass();
-			if(isset($a[0]) && $a[0] == 'id'){
-				$ret = &$this->$actionPart;
-				if(is_object($ret)){
-					$ret = $this->_getId();
+		$rm = $this->orm->reverseMappings;
+		if(isset($rm[$actionPart])) {
+			$dbName = $rm[$actionPart];
+			if (isset($relations[$dbName]) && !is_object($this->$actionPart)) {
+				$class = $relations[$dbName]->getTableClass();
+				if (isset($a[0]) && $a[0] == 'id') {
+					$ret = &$this->$actionPart;
+					if (is_object($ret)) {
+						$ret = $this->_getId();
+					}
+				} else {
+					$withUpdate = $a == 'update' || $a == 'for_update';
+					$this->$actionPart = $class::fromId($this->$actionPart, $withUpdate);
 				}
-			}else{
-				$withUpdate = $a == 'update' || $a == 'for_update';
-				$this->$actionPart = $class::fromId($this->$actionPart, $withUpdate);
 			}
 		}
 		if(isset($a[0]) && $a[0] == 'id' && is_object($this->$actionPart)){
