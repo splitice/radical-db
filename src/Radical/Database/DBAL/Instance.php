@@ -332,11 +332,6 @@ class Instance {
     function inTransaction(){
         return $this->transactionManager->inTransaction;
     }
-
-	private function transactionTooLong(){
-		$e = new \Exception();
-		file_put_contents('/tmp/transaction_long.txt',$e->getTraceAsString());
-	}
 	
 	function transaction($method, $retries = 5, $auto_de_nest = false){
         $savepoint = false;
@@ -354,7 +349,6 @@ class Instance {
 				if($savepoint){
 					$this->savepointStart();
 				}else {
-					$start = microtime(true);
 					$this->transactionStart();
 				}
                 $ret = $method();
@@ -362,10 +356,6 @@ class Instance {
 					$this->savepointCommit();
 				}else {
 					$this->transactionCommit();
-					$end = microtime(true);
-					if(($start + 1.5) < $end){
-						$this->transactionTooLong();
-					}
 				}
                 return $ret;
             }
