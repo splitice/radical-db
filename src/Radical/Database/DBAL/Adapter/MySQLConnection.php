@@ -28,7 +28,11 @@ class MySQLConnection implements IConnection {
 				if ($result = $mysqli->store_result()) {
 					$result->free();
 				}
-			} while ($mysqli->next_result());
+			} while ($mysqli->more_results() && $mysqli->next_result());
+
+			if($mysqli->error){
+				return false;
+			}
 			return true;
 		}
 		return false;

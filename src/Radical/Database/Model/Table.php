@@ -666,7 +666,7 @@ abstract class Table implements ITable, \JsonSerializable {
 		$orm = ORM\Manager::getModel($table);
 
 		if(!$orm)
-			throw new \Exception('Table doesnt exist: '.$table->getName());
+			throw new \Exception('Table doesnt exist: '.$table->getTable().' ('.$table->getName().')');
 			
 		//prefix
 		$prefixedFields = array();
