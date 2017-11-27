@@ -49,6 +49,7 @@ abstract class Table implements ITable, \JsonSerializable {
 	public $orm;
 	protected $_store = array();
 
+
     /**
      * @return int|string|array
      */
@@ -353,16 +354,24 @@ abstract class Table implements ITable, \JsonSerializable {
 		}
 
         $this->call_action("update_after");
+
+		foreach($values as $k=>$v){
+			$mapped = $this->orm->mappings[$k];
+			$this->_store[$mapped] = $v;
+		}
 	}
 	
 	function delete(){
-        $this->call_action("delete_before");
 		$inTransaction = \Radical\DB::inTransaction();
 		if($inTransaction){
 			\Radical\DB::transactionManager()->registerBeforeCommit(function(){$this->validate('delete');});
 		}else{
-			$this->Validate('delete');
+			$self = $this;
+			return \Radical\DB::transaction(function() use($self){
+				return $this->delete();
+			});
 		}
+		$this->call_action("delete_before");
 		try {
 			\Radical\DB::Delete($this->orm->tableInfo['name'], $this->getIdentifyingSQL());
 		}catch(\Exception $ex){
@@ -764,6 +773,16 @@ abstract class Table implements ITable, \JsonSerializable {
 		}
 	}
 
+	function changed($field){
+		$theValue = $this->$field;
+		if($theValue instanceof IDynamicType){
+			$theValue = $theValue->toSQL();
+		}
+		if(empty($this->_store[$field]) == empty($theValue)){
+			return false;
+		}
+		return $this->_store[$field] != $theValue;
+	}
 
 	function validate($operation = null){
 		if($operation == 'delete') return;
@@ -839,6 +858,9 @@ abstract class Table implements ITable, \JsonSerializable {
 		}
 
 		foreach($data as $k=>$v){
+			if($v !== null && $v instanceof IDynamicType){
+				$v = $v->toSQL();
+			}
 			$this->_store[$this->orm->mappings[$k]] = $v;
 		}
 		

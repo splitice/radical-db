@@ -80,6 +80,16 @@ class TableSet extends \Radical\Basic\Arr\Object\IncompleteObject {
 		//Table'ify
 		return $res->FetchCallback(array($this->tableClass,'fromSQL'));
 	}
+	function preload(){
+		if(!$this->data){
+			$this->data = $this->getData();
+			$this->count = count($this->data);
+		}
+		if($this->count === null){
+			$this->count = count($this->data);
+		}
+		return $this->count();
+	}
 	function reset(){
 		$this->data = null;
 		$this->count = null;
@@ -104,7 +114,13 @@ class TableSet extends \Radical\Basic\Arr\Object\IncompleteObject {
 		$this->count = $this->sql->getCountSql();
 	}
 	function getCount(){
-		if($this->count === null){
+		if(is_numeric($this->count)){
+			return $this->count;
+		}
+		if($this->count === null && !$this->data){
+			if($group = $this->sql->group()){
+				return $this->preload();
+			}
 			$this->buildCountSql();
 		}
 		if($this->data){

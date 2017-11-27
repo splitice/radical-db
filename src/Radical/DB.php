@@ -97,7 +97,7 @@ class DB extends DBAL\SQLUtils {
 	}
 
 	static function toTimeStamp($i) {
-		return date ( "Y-m-d H:i:s", $i );
+		return gmdate ( "Y-m-d H:i:s", $i );
 	}
 
 	static function bin($x) {

@@ -155,7 +155,7 @@ class SelectStatement extends Internal\StatementBase {
      * @return SelectStatement
      */
 	function group($group = null){
-		return $this->_R($this->from->group(func_get_args()));
+		return $this->_R($this->from->group($group === null ? null : func_get_args()));
 	}
     /**
      * @param mixed $group
