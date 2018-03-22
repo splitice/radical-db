@@ -35,7 +35,7 @@ SELECT
 
 
 class SelectStatement extends Internal\StatementBase {
-	protected $fields = array();
+	public $fields = array();
 
     /**
      * @var From

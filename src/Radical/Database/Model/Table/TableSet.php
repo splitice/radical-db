@@ -2,6 +2,7 @@
 namespace Radical\Database\Model\Table;
 
 use Radical\Database\DBAL\Fetch;
+use Radical\Database\Model\TableReference;
 use Radical\Database\Search\Adapter\ISearchAdapter;
 use Radical\Database\SQL;
 use Radical\Database\SQL\IStatement;
@@ -45,6 +46,34 @@ class TableSet extends \Radical\Basic\Arr\Object\IncompleteObject {
 	private function query(){
 		return \Radical\DB::Query($this->sql);
 	}
+	function prejoin($relationships){
+	    $table = TableReference::getByTableClass($this->tableClass);
+        $orm = $table->getORM();
+
+        $to_preload = array();
+        foreach($relationships as $e){
+            if(isset($orm->reverseMappings[$e])) {
+                $dbName = $orm->reverseMappings[$e];
+                if (isset($orm->relations[$dbName])){
+                    $to_preload[$e] = $orm->relations[$dbName];
+                }
+            }
+        }
+
+        /**
+         * @var string $k
+         * @var SQL\Parse\CreateTable\ColumnReference $v
+         */
+        foreach($to_preload as $k=>$v){
+            $this->sql->left_join($v->getTable(), $v->getTable(),$table->getTable().'.'.$orm->reverseMappings[$k].'='.$v->getTable().'.'.$v->getColumn());
+            $target_table = $v->getTableReference();
+            foreach($target_table->getORM()->reverseMappings as $dbName){
+                $this->sql->fields[] = $v->getTable().'.'.$dbName.' AS '.$k.'__'.$dbName;
+            }
+        }
+
+        return $this;
+    }
 	function yieldData(){
 		//This is the second time, lets cache this time
 		if($this->data === null && $this->count){

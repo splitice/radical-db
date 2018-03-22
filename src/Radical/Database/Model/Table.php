@@ -8,6 +8,7 @@ use Radical\Database\DynamicTypes\IDynamicValidate;
 use Radical\Database\DynamicTypes\INullable;
 use Radical\Database\Exception\DatabaseException;
 use Radical\Database\IToSQL;
+use Radical\Database\Model\Table\TableCache;
 use Radical\Database\Model\Table\TableSet;
 use Radical\Database\ORM;
 use Radical\Database\SQL;
@@ -45,6 +46,8 @@ abstract class Table implements ITable, \JsonSerializable {
      * @var int|string|array
      */
 	protected $_id;
+
+	private $_read_only = false;
 
 	public $orm;
 	protected $_store = array();
@@ -147,7 +150,7 @@ abstract class Table implements ITable, \JsonSerializable {
 		return $field;
 	}
 
-	function setSQLField($field,$value){
+	function setSQLField($field,$value,$store=false){
 		$sql_field = $this->process_field($field);
 
 		//Check can map
@@ -179,6 +182,10 @@ abstract class Table implements ITable, \JsonSerializable {
 		}else{
 			$vRef = $value;
 		}
+
+		if($store){
+		    $this->_store[$sql_field] = $value;
+        }
 	}
 	function getSQLField($field,$object = false) {
 		$field = $this->process_field($field);
@@ -226,6 +233,36 @@ abstract class Table implements ITable, \JsonSerializable {
 				}
 			}
 		}
+
+		$to_set = array();
+		foreach($in as $k=>$v){
+		    if(strpos($k, '__')){
+		        list($part_key, $part_field) = explode('__', $k, 2);
+		        if(!isset($this->$part_key)) continue;
+		        if(!isset($to_set[$part_key])) {
+                    if (isset($this->orm->reverseMappings[$part_key])) {
+                        $key = $this->orm->reverseMappings[$part_key];
+                        /** @var SQL\Parse\CreateTable\ColumnReference $relation */
+                        $relation = $this->orm->relations[$key];
+                        $to_set[$part_key] = $relation->getTableReference()->getNew();
+                    }
+                }
+                /** @var Table $target */
+                $target = $to_set[$part_key];
+                try {
+                    $target->setSQLField($part_field, $v);
+                }catch(\Exception $ex){
+                    die(var_dump($in));
+                }
+            }
+        }
+
+        foreach($to_set as $k=>$v){
+		    if($v instanceof CacheableTable) {
+                Table\TableCache::Add($v);
+            }
+            $this->$k = $v;
+        }
 	}
 
 	function __construct($in = array(),$prefix = false){
@@ -311,12 +348,17 @@ abstract class Table implements ITable, \JsonSerializable {
 		}
 		return $ret;
 	}
+
+	public function read_only($value){
+	    $this->_read_only = $value;
+    }
 	
 	public function jsonSerialize(){
 		return $this->toSQL();
 	}
 	
 	function update(){
+	    if($this->_read_only) throw new \InvalidArgumentException("Attempt to update read-only model");
         $this->call_action("update_before");
 		$inTransaction = \Radical\DB::inTransaction();
 		if($inTransaction){
@@ -435,6 +477,12 @@ abstract class Table implements ITable, \JsonSerializable {
 						$ret = $this->_getId();
 					}
 				} else {
+				    if(isset($a[0]) && $a[0] == 'light'){
+				        /** @var Table $ret */
+				        $ret = new $class(array($class::ID => $this->$actionPart));
+				        $ret->read_only(true);
+				        return $ret;
+                    }
 					$withUpdate = $a == 'update' || $a == 'for_update';
 					$this->$actionPart = $class::fromId($this->$actionPart, $withUpdate);
 				}
@@ -472,7 +520,14 @@ abstract class Table implements ITable, \JsonSerializable {
 			return $ret;
 		}
 		
-		$forUpdate = $a == 'update' || $a = 'for_update';
+		$forUpdate = isset($a[0]) && ($a[0] == 'update' || $a[0] == 'for_update');
+
+        $preload = function(TableReferenceInstance $table, TableSet $result) use($a){
+            if(isset($a[0]) && is_array($a[0])){
+                $result->prejoin($a[0]);
+            }
+            return $result;
+        };
 		
 		//Get Class
 		try{
@@ -501,7 +556,7 @@ abstract class Table implements ITable, \JsonSerializable {
 					$where = new Parts\Where($where);
 				}
 
-				return $this->_related_cache($className,$from_table->getAll($where, $forUpdate));
+				return $preload($ref['from_table'], $this->_related_cache($className, $from_table->getAll($where, $forUpdate)));
 			}
 
 			
@@ -515,7 +570,7 @@ abstract class Table implements ITable, \JsonSerializable {
                     $select = new Parts\Where();
                     $select[] = 'FALSE';
                 }
-				return $this->_related_cache($className,$relationship->getAll($select, $forUpdate));
+				return $preload($relationship, $this->_related_cache($className,$relationship->getAll($select, $forUpdate)));
 			}
 		}catch(\Exception $ex){
 			throw new \BadMethodCallException('Relationship doesnt exist: unable to relate');
@@ -668,7 +723,7 @@ abstract class Table implements ITable, \JsonSerializable {
 	}
 
 	private static function _select(){
-		return new SQL\SelectStatement(static::TABLE);
+		return new SQL\SelectStatement(static::TABLE, static::TABLE.'.*');
 	}
 	private static function _fromFields(array $fields, $forUpdate){
 		$table = TableReference::getByTableClass(get_called_class());
@@ -816,6 +871,7 @@ abstract class Table implements ITable, \JsonSerializable {
 	 * @see \Radical\Database\Model\ITable::Insert()
 	 */
 	function insert($ignore = -1){
+        if($this->_read_only) throw new \InvalidArgumentException("Attempt to insert read-only model");
         $this->call_action("insert_before", $this);
 
 		$inTransaction = \Radical\DB::inTransaction();
