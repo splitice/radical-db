@@ -121,6 +121,7 @@ abstract class Table implements ITable, \JsonSerializable {
 				$id[$v] = $this->_store[$mapped];
 		}
 		if($id) return $id;
+
 	}
 	function getIdentifyingKeys(){
 		$keys = $this->orm->id;
@@ -184,7 +185,7 @@ abstract class Table implements ITable, \JsonSerializable {
 		}
 
 		if($store){
-		    $this->_store[$sql_field] = $value;
+		    $this->_store[$field] = $value;
         }
 	}
 	function getSQLField($field,$object = false) {
@@ -249,11 +250,7 @@ abstract class Table implements ITable, \JsonSerializable {
                 }
                 /** @var Table $target */
                 $target = $to_set[$part_key];
-                try {
-                    $target->setSQLField($part_field, $v);
-                }catch(\Exception $ex){
-                    die(var_dump($in));
-                }
+                $target->setSQLField($part_field, $v, true);
             }
         }
 
@@ -723,7 +720,7 @@ abstract class Table implements ITable, \JsonSerializable {
 	}
 
 	private static function _select(){
-		return new SQL\SelectStatement(static::TABLE, static::TABLE.'.*');
+		return new SQL\SelectStatement(static::TABLE, '`'.static::TABLE.'`.*');
 	}
 	private static function _fromFields(array $fields, $forUpdate){
 		$table = TableReference::getByTableClass(get_called_class());
