@@ -5,7 +5,8 @@ use Radical\Cache\Object\WeakRef;
 use Radical\Database\Model\Table;
 
 class TableCache {
-	const MAX_ENTRIES = 500;
+	const MAX_ENTRIES = 256;
+	private static $i = 0;
 	static $cache;
 	
 	private static function init(){
@@ -14,28 +15,24 @@ class TableCache {
 		}
 	}
 	private static function _Add($key,$value){
-		self::Init();
+		self::init();
 		self::$cache->Set($key,$value);
 	}
 	static function Add($object){
-		//Never cache for CLI
-		if(php_sapi_name() == 'cli') 
-			return $object;
-		
 		if($object instanceof TableSet){
-			self::_Add($object->sql,$object);
+			self::_Add($object->sql, $object);
 		}elseif($object instanceof Table){
-			self::_Add($object->getIdKey(),$object);
+			self::_Add($object->getIdKey(), $object);
 		}else{
 			throw new \Exception('Couldnt add the object to TableCache, object is an instance of '.get_class($object));
 		}
-		if(self::$cache->count() > self::MAX_ENTRIES){
+		if(++self::$i % self::MAX_ENTRIES == 0){
 			self::$cache->gc(true);
 		}
 		return $object;
 	}
 	static function get($key){
-		self::Init();
+		self::init();
 		return self::$cache->Get($key);
 	}
 }

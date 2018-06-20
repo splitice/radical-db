@@ -18,6 +18,7 @@ class TableSet extends \Radical\Basic\Arr\Object\IncompleteObject {
 	 * @var SQL\SelectStatement
 	 */
 	public $count;
+	private $resultAdjustment;
 	
 	function __construct(SQL\SelectStatement $sql,$tableClass){
 		$this->sql = $sql;
@@ -74,6 +75,28 @@ class TableSet extends \Radical\Basic\Arr\Object\IncompleteObject {
 
         return $this;
     }
+    function resultProcess($function){
+	    if($this->resultAdjustment){
+	        $existing = $this->resultAdjustment;
+            $this->resultAdjustment = function($r) use($function, $existing){
+                $existing($r);
+                $function($r);
+            };
+        }else {
+            $this->resultAdjustment = $function;
+        }
+    }
+    protected function _resultProcess($r){
+	    if($this->resultAdjustment){
+	        $ra = $this->resultAdjustment;
+	        try {
+                $ra($r);
+            }catch(\Exception $ex){
+	            //ignore
+            }
+        }
+        return $r;
+    }
 	function yieldData(){
 		//This is the second time, lets cache this time
 		if($this->data === null && $this->count){
@@ -98,7 +121,7 @@ class TableSet extends \Radical\Basic\Arr\Object\IncompleteObject {
 		while($row = $res->fetch()){
 			$obj = $tc::fromSQL($row);
 			$count ++;
-			yield $obj;
+			yield $this->_resultProcess($obj);
 		}
 		$this->count = $count;
 	}
@@ -107,7 +130,10 @@ class TableSet extends \Radical\Basic\Arr\Object\IncompleteObject {
 		$res = $this->query();
 
 		//Table'ify
-		return $res->FetchCallback(array($this->tableClass,'fromSQL'));
+        $tableClass = $this->tableClass;
+		return $res->FetchCallback(function($result) use ($tableClass){
+		    return $this->_resultProcess($tableClass::fromSQL($result));
+        });
 	}
 	function preload(){
 		if(!$this->data){

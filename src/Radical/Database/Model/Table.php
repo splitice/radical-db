@@ -151,7 +151,7 @@ abstract class Table implements ITable, \JsonSerializable {
 		return $field;
 	}
 
-	function setSQLField($field,$value,$store=false){
+	function setSQLField($field,$value,$store=false,$validate=true){
 		$sql_field = $this->process_field($field);
 
 		//Check can map
@@ -162,19 +162,21 @@ abstract class Table implements ITable, \JsonSerializable {
 		//Get field name
 		$field = $this->orm->mappings[$sql_field];
 
-		//Handle table's
-		$flat_value = $value;
-		if($flat_value instanceof Table){
-			if(!isset($this->orm->relations[$sql_field])){
-				throw new \Exception("Invalid relational input to field ". $field);
-			}
-			$flat_value = $flat_value->getSQLField($this->orm->relations[$sql_field]->getColumn());
-		}
+		if($validate || $store) {
+            //Handle table's
+            $flat_value = $value;
+            if ($flat_value instanceof Table) {
+                if (!isset($this->orm->relations[$sql_field])) {
+                    throw new \Exception("Invalid relational input to field " . $field);
+                }
+                $flat_value = $flat_value->getSQLField($this->orm->relations[$sql_field]->getColumn());
+            }
 
-		//Validate
-		if(!$this->orm->validation->validate($sql_field, $flat_value)){
-			throw new ValidationException('Couldnt set '.$field.' to '.$value);
-		}
+            //Validate
+            if (!$this->orm->validation->validate($sql_field, $flat_value)) {
+                throw new ValidationException('Couldnt set ' . $field . ' to ' . $value);
+            }
+        }
 		
 		//Set field
 		$vRef = &$this->$field;
@@ -255,7 +257,7 @@ abstract class Table implements ITable, \JsonSerializable {
         }
 
         foreach($to_set as $k=>$v){
-		    if($v instanceof CacheableTable) {
+		    if($v instanceof WeakCacheableTable) {
                 Table\TableCache::Add($v);
             }
             $this->$k = $v;
@@ -518,13 +520,6 @@ abstract class Table implements ITable, \JsonSerializable {
 		}
 		
 		$forUpdate = isset($a[0]) && ($a[0] == 'update' || $a[0] == 'for_update');
-
-        $preload = function(TableReferenceInstance $table, TableSet $result) use($a){
-            if(isset($a[0]) && is_array($a[0])){
-                $result->prejoin($a[0]);
-            }
-            return $result;
-        };
 		
 		//Get Class
 		try{
@@ -543,9 +538,25 @@ abstract class Table implements ITable, \JsonSerializable {
 						}
 						$where[] = $compare;
                     }
-					$found = true;
+					$found = $ref['to_field'];
 				}
 			}
+
+            $preload = function(TableReferenceInstance $table, TableSet $result) use($a, $found){
+                if(isset($a[0]) && is_array($a[0])){
+                    $result->prejoin($a[0]);
+                }
+                if($found) {
+                    $id = $this->_getId();
+                    $result->resultProcess(function (Table $r) use($found, $id) {
+                        if($r->getSQLField($found) == $id) {
+                            $r->setSQLField($found, $this, false, false);
+                        }
+                    });
+                }
+                return $result;
+            };
+
 			if($found) {
 				if ($where->count() == 0) {
 					$where[] = 'FALSE';
@@ -567,7 +578,8 @@ abstract class Table implements ITable, \JsonSerializable {
                     $select = new Parts\Where();
                     $select[] = 'FALSE';
                 }
-				return $preload($relationship, $this->_related_cache($className,$relationship->getAll($select, $forUpdate)));
+                $tableSet = $this->_related_cache($className, $relationship->getAll($select, $forUpdate));
+				return $preload($relationship, $tableSet);
 			}
 		}catch(\Exception $ex){
 			throw new \BadMethodCallException('Relationship doesnt exist: unable to relate');

@@ -15,7 +15,7 @@ class CacheableTableSet extends TableSet {
 		//Table'ify
 		$tableClass = $this->tableClass;
 		return $res->FetchCallback(function($obj) use($tableClass){
-			return TableCache::Add($tableClass::fromSQL($obj));
+			return TableCache::Add($this->_resultProcess($tableClass::fromSQL($obj)));
 		});
 	}
 }
