@@ -24,7 +24,7 @@ class WeakCacheableTable extends Table {
      * @param mixed $id
      * @return static
      */
-    static function fromId($id){
+    static function fromId($id, $forUpdate = false){
 		//Check Cache
 		$cache_string = static::_idString($id);
 		$ret = Table\TableCache::Get($cache_string);
@@ -46,7 +46,7 @@ class WeakCacheableTable extends Table {
      * @param string $sql
      * @return Table\CacheableTableSet|Table\TableSet|static[]
      */
-    static function getAll($sql = ''){
+    static function getAll($sql = '', $forUpdate = false){
 		if(\Radical\Core\Server::isCLI())
 			return parent::getAll($sql);
 		

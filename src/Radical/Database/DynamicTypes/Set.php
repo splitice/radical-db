@@ -73,7 +73,7 @@ class Set extends DynamicType implements IDynamicType,IDynamicValidate {
 		return DB::e($this->__toString());
 	}
 	function setValue($value){
-		if(count($value) == 0){
+		if(@count($value) == 0){
 			$this->value = array();
 		}elseif(is_string($value)){
 			if(empty($value)){
