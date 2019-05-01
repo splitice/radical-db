@@ -29,11 +29,11 @@ class Cache {
 		global $BASEPATH;
 		if($table instanceof TableReferenceInstance){
 			//We only need the class name as our key
-			return $BASEPATH.$table->getClass();
+			return $table->getClass().$BASEPATH;
 		}elseif(!is_string($table)){
 			throw new \Exception('Invalid key specified');
 		}
-		return $BASEPATH.$table;
+		return $table.$BASEPATH;
 	}
 	
 	/**
@@ -67,8 +67,7 @@ class Cache {
 	}
 	
 	private static $pool;
-	
-	private static $key;
+
 	static function init(){
 		if(self::$data !== null) {
 			return;
@@ -76,7 +75,7 @@ class Cache {
 		self::$pool = \Radical\Cache\PooledCache::get('radical_orm','Memory');
 
         if(Server::isProduction()){
-        	$key = \Radical\DB::getInstance()->getDb().'_'.self::$key;
+        	$key = \Radical\DB::getInstance()->getDb().'_'.crc32(__FILE__);
             self::$data = self::$pool->get($key);
             register_shutdown_function(function() use($key){
                 Cache::save($key);
@@ -89,7 +88,7 @@ class Cache {
 	static function save($key = null){
 		if(self::$changed){
 			if($key === null){
-				$key = \Radical\DB::getInstance()->getDb().'_'.self::$key;
+				$key = \Radical\DB::getInstance()->getDb().'_'.crc32(__FILE__);
 			}
 			self::$pool->set($key, self::$data);
 		}

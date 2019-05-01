@@ -16,6 +16,8 @@ class MysqlMultiPicker implements IMysqlConnector
 	private $servers;
 
 	private $last_connected;
+	private $last_connected_thread;
+    private $last_connected_time;
 	private $mysqli;
 
 	private $is_init = false;
@@ -117,7 +119,7 @@ class MysqlMultiPicker implements IMysqlConnector
 	 * @return boolean
 	 */
 	function isConnected() {
-		if(php_sapi_name() == 'fpm-fcgi') return $this->mysqli != null;//Web requests are short
+		if(PHP_SAPI === 'fpm-fcgi') return $this->mysqli != null;//Web requests are short
 
 		return ($this->mysqli && @$this->mysqli->ping());
 	}
@@ -142,10 +144,12 @@ class MysqlMultiPicker implements IMysqlConnector
 		do {
 			$server = $this->pick($inTransaction);
 
-			if ($first && $server == $this->last_connected) {
-				if ($this->isConnected()) {
-					return $this->mysqli;
-				}
+			if ($first && $server == $this->last_connected && $this->mysqli) {
+			    $now = time();
+			    if($this->isConnected()) {//($this->last_connected_thread == getmypid() && ($this->last_connected_time + 2)) >= $now ||
+                    $this->last_connected_time = $now;
+			        return $this->mysqli;
+                }
 			}
 			$first = false;
 
@@ -179,6 +183,8 @@ class MysqlMultiPicker implements IMysqlConnector
 
 		$this->mysqli = $mysqli;
 		$this->last_connected = $server;
+		$this->last_connected_time = time();
+		$this->last_connected_thread = getmypid();
 
 		return $this->mysqli;
 	}

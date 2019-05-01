@@ -28,7 +28,7 @@ class WeakCacheableTable extends Table {
 		//Check Cache
 		$cache_string = static::_idString($id);
 		$ret = Table\TableCache::Get($cache_string);
-	
+
 		//If is cached
 		if($ret){
 			return $ret;

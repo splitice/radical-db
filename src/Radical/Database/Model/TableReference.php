@@ -45,6 +45,10 @@ class TableReference {
 		//Return instance
 		return $c;
 	}
+
+    /**
+     * @return \Radical\Database\Model\TableReferenceInstance[]
+     */
 	static function getAll(){
 		$ret = array();
 		foreach(static::getClasses() as $class){

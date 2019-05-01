@@ -179,8 +179,8 @@ class Instance {
 	 * @param array $where Where conditions
 	 * @return boolean
 	 */
-	function update($tbl, $data, $where) {
-		$update = new SQL\UpdateStatement($tbl, $data, $where);
+	function update($tbl, $data, $where, $limit = null) {
+		$update = new SQL\UpdateStatement($tbl, $data, $where, $limit);
 		
 		//Execute
 		return ( bool ) $this->Query ( $update );

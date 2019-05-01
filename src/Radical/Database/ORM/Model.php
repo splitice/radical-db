@@ -34,46 +34,49 @@ class Model extends ModelData {
 		
 		//build relation array
 		if($this->engine == 'innodb'){
-			foreach($structure->relations as $r){
-                $reference = $r->getReference();
-				$this->relations[$r->getField()] = $reference;
-                //$mapper = new Mappings($reference->getTableReference()->info(),CreateTable::fromTable($reference->getTable()));
-                //$this->relationReverseMappings[$r->getField()] = $mapper->translateToObjective($reference->getColumn());
+			foreach($structure->relations as $relation){
+				$this->relations[$relation->getField()] = $relation->getReference();
 			}
-		}elseif($this->engine == 'myisam'){
-			$this->relations = MyIsam::fieldReferences($structure,$this->table);
 		}else{
 			throw new \Exception('Unknown database engine type: '.$this->engine);
 		}
-		
-		//Work out reverse references
-		$tableName = $this->tableInfo['name'];
-		foreach(TableReference::getAll() as $ref){
-			if($ref->exists()){
-				$rStruct = CreateTable::fromTable($ref->getTable());
-				foreach($rStruct->relations as $relation){
-					$reference = $relation->getReference();
-					$rTable = $reference->getTable();
-					
-					if($rTable == $tableName){
-						$this->references[] = array('from_table'=>$ref,'from_field'=>$relation->getField(),'to_field'=>$reference->getColumn());
-					}
-				}
-			}
-		}
 
-		//Dnamic Typing data
-		$this->dynamicTyping = new DynamicTyping\Instance($table);
-		$this->dynamicTyping = $this->dynamicTyping->map;
+        //Dnamic Typing data
+        $this->dynamicTyping = new DynamicTyping\Instance($table);
+        $this->dynamicTyping = $this->dynamicTyping->map;
 
-		//Validation
-		$this->validation = new Validation($structure,$this->dynamicTyping);
-		
-		parent::__construct($this->mappings);
-		
-		//Store into cache
-		Cache::Set($table,$this);
+        //Validation
+        $this->validation = new Validation($structure,$this->dynamicTyping);
+
+        parent::__construct($this->mappings);
+
+        //Store into cache
+        Cache::Set($table, $this);
 	}
+
+	function calculateReferences(){
+        $class = $this->table->getClass();
+        //Work out reverse references
+        $tableName = $this->tableInfo['name'];
+        $toInit = array();
+        foreach(TableReference::getAll() as $ref){
+            //if($ref->getClass() == $class) continue;
+            if(!($orm = Cache::get($ref))){
+                if(!$ref->exists()) continue;
+                $orm = new Model($ref);
+                $toInit[] = $orm;
+            }
+            foreach($orm->relations as $field=>$reference){
+                $rTable = $reference->getTable();
+                if($rTable == $tableName){
+                    $this->references[] = array('from_table'=>$ref,'from_field'=>$field,'to_field'=>$reference->getColumn());
+                }
+            }
+        }
+        foreach($toInit as $orm){
+            $orm->calculateReferences();
+        }
+    }
 	
 	/**
 	 * Make an instance of the parent class. Usually this
@@ -85,6 +88,7 @@ class Model extends ModelData {
 		$r = new ModelData($this->mappings);
 		foreach($this as $k=>$v)
 			$r->$k = $v;
+		$r->references = &$this->references;
 		return $r;
 	}
 }

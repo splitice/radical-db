@@ -48,15 +48,26 @@ class TableSet extends \Radical\Basic\Arr\Object\IncompleteObject {
 		return \Radical\DB::Query($this->sql);
 	}
 	function prejoin($relationships){
-	    $table = TableReference::getByTableClass($this->tableClass);
-        $orm = $table->getORM();
-
         $to_preload = array();
         foreach($relationships as $e){
+            if(is_string($e)){
+                $table = TableReference::getByTableClass($this->tableClass);
+            } elseif (is_array($e)){
+                $table = $e[0];
+                $e = $e[1];
+            }
+            $orm = $table->getORM();
             if(isset($orm->reverseMappings[$e])) {
                 $dbName = $orm->reverseMappings[$e];
                 if (isset($orm->relations[$dbName])){
-                    $to_preload[$e] = $orm->relations[$dbName];
+                    $prefix = '';
+                    foreach($to_preload as $k=>$v){
+                        if($v['relationship']->getTable() == $table->getTable()){
+                            $prefix = $v['prefix'];
+                            $prefix .= $k.'__';
+                        }
+                    }
+                    $to_preload[$e] = array('relationship'=>$orm->relations[$dbName], 'table'=>$table, 'prefix'=>$prefix);
                 }
             }
         }
@@ -65,11 +76,15 @@ class TableSet extends \Radical\Basic\Arr\Object\IncompleteObject {
          * @var string $k
          * @var SQL\Parse\CreateTable\ColumnReference $v
          */
-        foreach($to_preload as $k=>$v){
+        foreach($to_preload as $k=>$_v){
+            $v = $_v['relationship'];
+            $table = $_v['table'];
+            $prefix = $_v['prefix'];
+            $orm = $table->getORM();
             $this->sql->left_join($v->getTable(), $v->getTable(),$table->getTable().'.'.$orm->reverseMappings[$k].'='.$v->getTable().'.'.$v->getColumn());
             $target_table = $v->getTableReference();
             foreach($target_table->getORM()->reverseMappings as $dbName){
-                $this->sql->fields[] = $v->getTable().'.'.$dbName.' AS '.$k.'__'.$dbName;
+                $this->sql->fields[] = $v->getTable().'.'.$dbName.' AS '.$prefix.$k.'__'.$dbName;
             }
         }
 

@@ -7,7 +7,7 @@ class ColumnReference{
 	protected $table;
 	protected $column;
 	
-	function __construct($table,$column){
+	function __construct($table, $column){
 		$this->table = $table;
 		$this->column = $column;
 	}

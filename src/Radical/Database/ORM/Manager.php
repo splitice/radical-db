@@ -14,6 +14,7 @@ class Manager {
 		}
 		
 		$model = new Model($table);
+		$model->calculateReferences();
 		
 		if($data)
 			$model = $model->toModelData();

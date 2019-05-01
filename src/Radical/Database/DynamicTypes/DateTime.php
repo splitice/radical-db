@@ -27,13 +27,13 @@ class DateTime extends \Radical\Basic\DateTime\DateTime implements IDynamicType 
     function toSQL(){
         return DB::E($this->toSQLFormat());
     }
-	static function fromDatabaseModel($value,array $extra,ITable $model){
+	static function fromDatabaseModel($value, array $extra, ITable $model){
 		if(is_int($value)){
 			return new static($value);
 		}
 		return parent::fromSQL($value);
 	}
-	static function fromUserModel($value,array $extra,ITable $model){
+	static function fromUserModel($value, array $extra, ITable $model){
 		return static::fromDatabaseModel($value, $extra, $model);
 	}
 }

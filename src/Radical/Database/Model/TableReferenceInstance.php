@@ -106,9 +106,9 @@ class TableReferenceInstance {
 	/**
 	 * @return Table
 	 */
-	function getNew(){
+	function getNew(...$args){
 		$class = $this->getClass();
-		return new $class;
+		return new $class(...$args);
 	}
 
 	/**

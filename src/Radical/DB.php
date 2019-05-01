@@ -109,13 +109,12 @@ class DB extends DBAL\SQLUtils {
 		if(!method_exists($instance,$method)){
 			throw new \BadMethodCallException('Database method: "'.$method.'" doesnt exist');
 		}
-		$a = count($argument);
-		if($a === 1){
-			return $instance->$method($argument[0]);
-		}
-		
-		return call_user_func_array(array($instance,$method),$argument);
+		return $instance->$method(...$argument);
 	}
+
+    public static function ___callStatic($method, $argument){
+        return static::getInstance()->$method(...$argument);
+    }
 	
 	/* Predefined Methods */
 	
@@ -124,14 +123,14 @@ class DB extends DBAL\SQLUtils {
 	}
 	
 	static function tableExists() {
-		return static::__callStatic(__FUNCTION__, func_get_args());
+		return static::___callStatic(__FUNCTION__, func_get_args());
 	}
 	
 	/**
 	 * Return the number of affected rows of the last MySQL query
 	 */
 	static function affectedRows() {
-		return static::__callStatic(__FUNCTION__, func_get_args());
+		return static::___callStatic(__FUNCTION__, func_get_args());
 	}
 	
 	/**
@@ -141,7 +140,7 @@ class DB extends DBAL\SQLUtils {
 	 * @return \Radical\Database\DBAL\Result
 	 */
 	static function query($sql,$timeout=DBAL\Instance::QUERY_TIMEOUT,$is_retry=false) {
-		return static::__callStatic(__FUNCTION__, func_get_args());
+		return static::___callStatic(__FUNCTION__, func_get_args());
 	}
 	
 	/**
@@ -152,11 +151,11 @@ class DB extends DBAL\SQLUtils {
 	 * @return \Radical\Database\DBAL\RowResult
 	 */
 	static function q($sql,$timeout=DBAL\Instance::QUERY_TIMEOUT){
-		return static::__callStatic(__FUNCTION__, func_get_args());
+		return static::___callStatic(__FUNCTION__, func_get_args());
 	}
 	
 	static function multipleInsert($tbl, $cols, $data, $ignore = false){
-		return static::__callStatic(__FUNCTION__, func_get_args());
+		return static::___callStatic(__FUNCTION__, func_get_args());
 	}
 	
 	/**
@@ -166,7 +165,7 @@ class DB extends DBAL\SQLUtils {
 	 * @return boolean
 	 */
 	static function insert($tbl, $data, $ignore = false) {
-		return static::__callStatic(__FUNCTION__, func_get_args());
+		return static::___callStatic(__FUNCTION__, func_get_args());
 	}
 	
 	/**
@@ -176,12 +175,12 @@ class DB extends DBAL\SQLUtils {
 	 * @param array $where Where conditions
 	 * @return boolean
 	 */
-	static function update($tbl, $data, $where) {
-		return static::__callStatic(__FUNCTION__, func_get_args());
+	static function update($tbl, $data, $where, $limit = null) {
+		return static::___callStatic(__FUNCTION__, func_get_args());
 	}
 	
 	static function fOUND_ROWS() {
-		return static::__callStatic(__FUNCTION__, func_get_args());
+		return static::___callStatic(__FUNCTION__, func_get_args());
 	}
 	
 	/**
@@ -190,7 +189,7 @@ class DB extends DBAL\SQLUtils {
 	 * @param string $where where condition
 	 */
 	static function delete($tbl, $where) {
-		return static::__callStatic(__FUNCTION__, func_get_args());
+		return static::___callStatic(__FUNCTION__, func_get_args());
 	}
 	
 	/**
@@ -199,29 +198,29 @@ class DB extends DBAL\SQLUtils {
 	 * @return string
 	 */
 	static function escape($str) {
-		return static::__callStatic(__FUNCTION__, func_get_args());
+		return static::___callStatic(__FUNCTION__, func_get_args());
 	}
 	
 	static function e($str){
-		return static::__callStatic(__FUNCTION__, func_get_args());
+		return static::___callStatic(__FUNCTION__, func_get_args());
 	}
 	
 	/**
 	 * Return the last MySQL error
 	 */
 	static function error() {
-		return static::__callStatic(__FUNCTION__, func_get_args());
+		return static::___callStatic(__FUNCTION__, func_get_args());
 	}
 	
 	/**
 	 * Return the AUTO_INCREMENT value of the last MySQL insert
 	 */
 	static function insertId() {
-		return static::__callStatic(__FUNCTION__, func_get_args());
+		return static::___callStatic(__FUNCTION__, func_get_args());
 	}
 	
 	static function fetch(DBAL\Result $res, $format = DBAL\Fetch::ASSOC, $cast=null){
-		return static::__callStatic(__FUNCTION__, func_get_args());
+		return static::___callStatic(__FUNCTION__, func_get_args());
 	}
 	
 	/**
@@ -233,7 +232,7 @@ class DB extends DBAL\SQLUtils {
 	 */
 	static function fetchCallback($res, $callback, $format = DBAL\Fetch::ALL_ASSOC)
     {
-        return static::__callStatic(__FUNCTION__, func_get_args());
+        return static::___callStatic(__FUNCTION__, func_get_args());
     }
 
     /**
@@ -241,21 +240,21 @@ class DB extends DBAL\SQLUtils {
      * @return integer
      */
 	static function numRows($res){
-		return static::__callStatic(__FUNCTION__, func_get_args());
+		return static::___callStatic(__FUNCTION__, func_get_args());
 	}
 	
 	/* Start / End transaction */
 	static function transactionStart(){
-		return static::__callStatic(__FUNCTION__, func_get_args());
+		return static::___callStatic(__FUNCTION__, func_get_args());
 	}
 	static function transactionCommit(){
-		return static::__callStatic(__FUNCTION__, func_get_args());
+		return static::___callStatic(__FUNCTION__, func_get_args());
 	}
 	static function transaction($what){
-		return static::__callStatic(__FUNCTION__, func_get_args());
+		return static::___callStatic(__FUNCTION__, func_get_args());
 	}
     static function inTransaction(){
-        return static::__callStatic(__FUNCTION__, func_get_args());
+        return static::___callStatic(__FUNCTION__, func_get_args());
     }
     static function transactionManager(){
         $instance = static::getInstance();

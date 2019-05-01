@@ -7,11 +7,13 @@ class UpdateStatement extends Internal\StatementBase {
 	protected $table;
 	protected $set;
 	protected $where;
+	protected $limit;
 	
-	function __construct($table = null,$values = array(),$where = array()){
+	function __construct($table = null,$values = array(),$where = array(), $limit = null){
 		$this->table = $table;
 		$this->set = new Parts\Set($values);
 		$this->where = new Parts\Where($where);
+		$this->limit = $limit;
 	}
 	
 	function set($set = null,$second = null){
@@ -78,6 +80,9 @@ class UpdateStatement extends Internal\StatementBase {
 		$sql = 'UPDATE `' . $this->table . '` ';
 		$sql .= $this->set.' ';
 		$sql .= $this->where;
+		if($this->limit) {
+		    $sql .= " LIMIT ".$this->limit;
+        }
 
 		return $sql;
 	}

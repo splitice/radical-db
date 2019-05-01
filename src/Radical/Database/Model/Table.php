@@ -222,7 +222,7 @@ abstract class Table implements ITable, \JsonSerializable {
 	
 	protected function _handleResult($in_param){
 		$in = $in_param;
-		$store = false;
+		$store = !!$in['__store'];
 		if(is_object($in)) {
 			$in = $in->toArray();
 			$store = true;
@@ -247,24 +247,27 @@ abstract class Table implements ITable, \JsonSerializable {
                         $key = $this->orm->reverseMappings[$part_key];
                         /** @var SQL\Parse\CreateTable\ColumnReference $relation */
                         $relation = $this->orm->relations[$key];
-                        $to_set[$part_key] = $relation->getTableReference()->getNew();
+                        $to_set[$part_key] = array('ref'=>$relation->getTableReference(), 'fields'=>array('__store'=>true));
+                    } else {
+                        continue;
                     }
                 }
-                /** @var Table $target */
-                $target = $to_set[$part_key];
-                $target->setSQLField($part_field, $v, true);
+
+                $to_set[$part_key]['fields'][$part_field] = $v;
             }
         }
 
         foreach($to_set as $k=>$v){
+            $target = $v['ref']->getNew($v['fields'], true);
+
 		    if($v instanceof WeakCacheableTable) {
-                Table\TableCache::Add($v);
+                Table\TableCache::Add($target);
             }
-            $this->$k = $v;
+            $this->$k = $target;
         }
 	}
 
-	function __construct($in = array(),$prefix = false){
+	function __construct($in = array(), $prefix = false){
 		//Setup object with table specific data
 		$table = TableReference::getByTableClass($this);
 		$this->orm = $table->getORM();
@@ -302,10 +305,10 @@ abstract class Table implements ITable, \JsonSerializable {
 			if(!CoreInterface::oneof($dT, '\\Radical\\Database\\DynamicTypes\\INullable')){
 				return;
 			}
-		}
-		if(!($v instanceof IDynamicType)){
-			$this->$field = $dT::fromDatabaseModel($v, $dynamicTypeValue['extra'], $this, $field);
-		}
+		} elseif ($v instanceof IDynamicType) {
+            return;
+        }
+        $this->$field = $dT::fromDatabaseModel($v, $dynamicTypeValue['extra'], $this, $field);
 	}
 	
 	private function _dynamicType(){
@@ -385,7 +388,7 @@ abstract class Table implements ITable, \JsonSerializable {
 		if(count($values)) {
 			$this->call_action("update_before_query");
 			try {
-				\Radical\DB::Update($this->orm->tableInfo['name'], $values, $identifying);
+				\Radical\DB::Update($this->orm->tableInfo['name'], $values, $identifying, 1);
 			}catch(\Exception $ex){
 				if($inTransaction){
 					$this->Validate('update');
