@@ -57,7 +57,7 @@ class Instance {
 	}
 	
 	function __call($func,$args){
-		return call_user_func_array(array($this->adapter,$func), $args);
+	    return $this->adapter->$func(...$args);
 	}
 	
 	/**
@@ -332,7 +332,19 @@ class Instance {
     function inTransaction(){
         return $this->transactionManager->inTransaction;
     }
-	
+
+    private function setPreviousException(\Exception $e, \Exception $prev) {
+        $reflection = new \ReflectionClass($e);
+        while( ! $reflection->hasProperty('previous') ) {
+            $reflection = $reflection->getParentClass();
+        }
+        $prop = $reflection->getProperty('previous');
+        $prop->setAccessible('true');
+        $prop->setValue($e, $prev);
+        $prop->setAccessible('false');
+        return $e;
+    }
+
 	function transaction($method, $retries = 5, $auto_de_nest = false){
         $savepoint = false;
 		if($this->inTransaction()) {
@@ -371,19 +383,29 @@ class Instance {
 				throw $ex;
 			}
 			catch(TransactionException $ex){
-				if($savepoint) {
-					$this->savepointRollback();
-				}else{
-					$this->transactionRollback();
-				}
+                try {
+                    if ($savepoint) {
+                        $this->savepointRollback();
+                    } else {
+                        $this->transactionRollback();
+                    }
+                } catch(\Exception $inner){
+                    $this->setPreviousException($inner, $ex);
+                    throw $inner;
+                }
 			}
 			catch (\Exception $ex) {
-				if($savepoint) {
-					$this->savepointRollback();
-				}else{
-					$this->transactionRollback();
-				}
-				throw $ex;
+                try {
+                    if($savepoint) {
+                        $this->savepointRollback();
+                    }else{
+                        $this->transactionRollback();
+                    }
+                    throw $ex;
+                } catch(\Exception $inner){
+                    $this->setPreviousException($inner, $ex);
+                    throw $inner;
+                }
             }
 
             //Delay for retry 2 onwards to try and reduce thrashing. 100ms per retry

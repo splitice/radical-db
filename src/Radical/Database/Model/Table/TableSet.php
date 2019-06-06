@@ -18,6 +18,7 @@ class TableSet extends \Radical\Basic\Arr\Object\IncompleteObject {
 	 * @var SQL\SelectStatement
 	 */
 	public $count;
+	private $exists = null;
 	private $resultAdjustment;
 	
 	function __construct(SQL\SelectStatement $sql,$tableClass){
@@ -121,12 +122,20 @@ class TableSet extends \Radical\Basic\Arr\Object\IncompleteObject {
 		return $this->_yieldData();
 	}
 	function _yieldData(){
-		if($this->data){
+		if($this->data !== null){
 			foreach($this->data as $d){
 				yield $d;
 			}
 			return;
 		}
+
+        /*$obj = $this->sql;
+        echo (string)$obj,"\n";
+        // && strpos((string)$obj,'server.*') && !strpos((string)$obj,'IN')
+        if(strpos((string)$obj,'GROUP BY server.server_id')) {
+            debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+            exit;
+        }*/
 
 		//Execute
 		$res = $this->query();
@@ -140,7 +149,12 @@ class TableSet extends \Radical\Basic\Arr\Object\IncompleteObject {
 		}
 		$this->count = $count;
 	}
+	function setData($value){
+	    $this->data = $value;
+    }
 	function getData(){
+	    if($this->data) return $this->data;
+
 		//Execute
 		$res = $this->query();
 
@@ -180,9 +194,35 @@ class TableSet extends \Radical\Basic\Arr\Object\IncompleteObject {
 	function setSQLCount(SelectStatement $sql){
 		$this->count = $sql;
 	}
-	function buildCountSql(){
+	public function buildCountSql(){
 		$this->count = $this->sql->getCountSql();
 	}
+	private function buildExistsSql(){
+        //Check for entry
+        $count = clone ($this->sql);
+        if($count->for_update){
+            $count->for_update = false;
+        }
+        $count->fields('TRUE');
+        $count->remove_limit();
+        //$count->remove_joins();
+        $count->remove_order_by();
+        return $count;
+    }
+    function exists(){
+	    if($this->exists !== null) return $this->exists;
+        if(is_numeric($this->count)){
+            return $this->count != 0;
+        }
+        if($this->data){
+            return count($this->data) != 0;
+        }
+
+        $sql = $this->buildExistsSql();
+        $res = \Radical\DB::Query($sql);
+        $this->exists = $res->fetch(Fetch::FIRST);
+        return $this->exists;
+    }
 	function getCount(){
 		if(is_numeric($this->count)){
 			return $this->count;

@@ -222,7 +222,7 @@ abstract class Table implements ITable, \JsonSerializable {
 	
 	protected function _handleResult($in_param){
 		$in = $in_param;
-		$store = !!$in['__store'];
+		$store = !empty($in['__store']);
 		if(is_object($in)) {
 			$in = $in->toArray();
 			$store = true;
@@ -672,7 +672,6 @@ abstract class Table implements ITable, \JsonSerializable {
 		}elseif($sql){
 			throw new \Exception('Invalid SQL Type');
 		}
-		
 		return $obj;
 	}
 	

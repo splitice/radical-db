@@ -11,6 +11,7 @@ interface IMysqlConnector
 	 * @return \mysqli
 	 */
 	function getConnection(MySQLConnection $connection, $inTransaction);
+	function onClose(\mysqli $connection);
 	function isConnected();
 	function getDb();
 	function selectDb($db);

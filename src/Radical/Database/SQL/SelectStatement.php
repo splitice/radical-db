@@ -42,7 +42,7 @@ class SelectStatement extends Internal\StatementBase {
      */
     protected $from;
 
-    protected $for_update;
+    public $for_update;
 
 
     /**

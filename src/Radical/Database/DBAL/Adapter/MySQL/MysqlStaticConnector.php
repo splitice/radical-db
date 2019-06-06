@@ -73,6 +73,10 @@ class MysqlStaticConnector implements IMysqlConnector
 		return $this->mysqli;
 	}
 
+    function onClose(\mysqli $connection){
+
+    }
+
 	function __toString()
 	{
 		return $this->user . '@' . $this->host . ':' . $this->port . ($this->compression?'z':'') . '/' . $this->db;

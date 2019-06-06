@@ -8,7 +8,7 @@ class Set extends Internal\FilterPartBase {
 		if(count($this->data)){
 			return 'SET '.\Radical\DB::A(array_map(function($r){
 				return $r->expr();
-			},$this->data));//Ugly hack
+			}, $this->data));//Ugly hack
 		}
 	}
 }

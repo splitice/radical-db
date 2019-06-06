@@ -68,17 +68,22 @@ class MySQLConnection implements IConnection {
 
 	/* Transactions */
     function beginTransaction(){
-    	$this->inTransaction = true;
-        return $this->connect()->autocommit(false);
+        $ret = $this->connect()->autocommit(false);
+    	if($ret) $this->inTransaction = true;
+        return $ret;
     }
 	
 	function commit(){
+        if(!$this->inTransaction) throw new \RuntimeException('No transaction to rollback');
+        if(!$this->last_connection) throw new \RuntimeException('Not connected while in transaction');
 		$ret = $this->last_connection->commit();
 		$this->inTransaction = false;
 		return $this->last_connection->autocommit(true) && $ret;
 	}
 	
 	function rollback(){
+        if(!$this->inTransaction) throw new \RuntimeException('No transaction to rollback');
+        if(!$this->last_connection) throw new \RuntimeException('Not connected while in transaction');
 		$ret = $this->last_connection->rollback();
 		$this->inTransaction = false;
 		return $this->last_connection->autocommit(true) && $ret;
@@ -103,8 +108,12 @@ class MySQLConnection implements IConnection {
 	}
 	
 	function close(){
+        if($this->inTransaction) {
+            throw new \RuntimeException('Cannot close database while in transaction');
+        }
 		if($this->last_connection){
-			mysqli_close($this->last_connection);
+			$this->connector->onClose($this->last_connection);
+            mysqli_close($this->last_connection);
 			$this->last_connection = null;
 		}
 	}

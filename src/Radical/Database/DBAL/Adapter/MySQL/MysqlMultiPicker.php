@@ -41,10 +41,11 @@ class MysqlMultiPicker implements IMysqlConnector
 
 		if ($this->errored) {
 			$this->ignored[json_encode($last_used)] = true;
+			$error = $this->errored;
 			$this->errored = false;
 
 			if ($in_transaction) {
-				throw new TransactionException("Server executing transaction errored, restart transaction");
+				throw new TransactionException("Server executing transaction errored, restart transaction", 0, new \RuntimeException($error));
 			}
 		} else {
 			$this->retries = self::MAX_RETRIES;
@@ -97,7 +98,7 @@ class MysqlMultiPicker implements IMysqlConnector
 	function filter_handler(&$err)
 	{
 		if (self::handle_error($err)) {
-			$this->errored = true;
+			$this->errored = $err;
 			$err = null;
 		}
 	}
@@ -154,7 +155,7 @@ class MysqlMultiPicker implements IMysqlConnector
 			$first = false;
 
 			$mysqli = mysqli_init();
-			$mysqli->options(MYSQLI_OPT_CONNECT_TIMEOUT, 2);
+			$mysqli->options(MYSQLI_OPT_CONNECT_TIMEOUT, 1);
 
 			//Connect - With compression
 			$connection_status = @$mysqli->real_connect($server['host'],
@@ -166,13 +167,22 @@ class MysqlMultiPicker implements IMysqlConnector
 					$continue = false;
 				} else {
 					$mysqli->close();
+                    $mysqli = null;
 				}
 			}else{
-				$res = $mysqli->query('SHOW GLOBAL STATUS LIKE "wsrep_cluster_size"');
-				$row = $res->fetch_assoc();
-				if($row['Value'] != 1) {
-					$continue = false;
-				}
+                $res = $mysqli->query('SHOW GLOBAL STATUS LIKE "wsrep_cluster_size"');
+                $row = $res->fetch_assoc();
+                if($row['Value'] != 1) {
+                    $continue = false;
+                }
+
+                if(!$continue){
+                    $res = $mysqli->query('SHOW GLOBAL STATUS LIKE "wsrep_local_state"');
+                    $row = $res->fetch_assoc();
+                    if($row['Value'] != 4) {
+                        $continue = true;
+                    }
+                }
 			}
 		}while($continue);
 
@@ -182,12 +192,18 @@ class MysqlMultiPicker implements IMysqlConnector
 		}
 
 		$this->mysqli = $mysqli;
-		$this->last_connected = $server;
-		$this->last_connected_time = time();
-		$this->last_connected_thread = getmypid();
+		if($mysqli) {
+            $this->last_connected = $server;
+            $this->last_connected_time = time();
+            $this->last_connected_thread = getmypid();
+        }
 
 		return $this->mysqli;
 	}
+
+    function onClose(\mysqli $connection){
+	    if($connection == $this->mysqli) $this->mysqli = null;
+    }
 
 	function __toString()
 	{

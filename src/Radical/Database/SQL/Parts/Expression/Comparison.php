@@ -34,7 +34,7 @@ class Comparison extends Internal\PartBase implements IComparison {
 			$a = $at;
 		}
 		
-		if($this->b instanceof IComparison && count($this->b)){
+		if($this->b && $this->b instanceof IComparison){
 			return $a.' '.(string)$this->b;
 		}
 		
