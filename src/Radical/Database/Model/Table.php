@@ -535,7 +535,7 @@ abstract class Table implements ITable, \JsonSerializable {
 					$from_table = $ref['from_table'];
                     $field = $this->getSQLField($ref['to_field']);
                     if($field !== null){
-						$compare = new Parts\Expression\Comparison($ref['from_field'], $field);
+						$compare = new Parts\Expression\Comparison($ref['from_table']->getTable().'.'.$ref['from_field'], $field);
 						if($found){
 							$compare = new Parts\WhereOR($compare);
 						}

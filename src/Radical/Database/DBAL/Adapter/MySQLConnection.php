@@ -19,6 +19,14 @@ class MySQLConnection implements IConnection {
 		$this->connector = $connector;
 	}
 
+    /**
+     * @return IMysqlConnector
+     */
+    public function getConnector(): IMysqlConnector
+    {
+        return $this->connector;
+    }
+
 	function multiQuery($sql)
 	{
 		$mysqli = $this->connect();
@@ -57,7 +65,8 @@ class MySQLConnection implements IConnection {
 
 	/* Savepoints */
 	function savepointStart($name){
-		return $this->connect()->savepoint($name);
+        if(!$this->inTransaction) throw new \RuntimeException('Must be in transaction to use savepoint');
+		return $this->last_connection->savepoint($name);
 	}
 	function savepointRollback($name){
 		return $this->last_connection->query('ROLLBACK TO SAVEPOINT '.$name);
@@ -68,16 +77,22 @@ class MySQLConnection implements IConnection {
 
 	/* Transactions */
     function beginTransaction(){
-        $ret = $this->connect()->autocommit(false);
-    	if($ret) $this->inTransaction = true;
+        if($this->inTransaction) throw new \RuntimeException('Already in transaction');
+        $connection = $this->connect();
+        $ret = $connection->autocommit(false);
+    	if($ret) $this->inTransaction = $connection;
         return $ret;
     }
 	
 	function commit(){
-        if(!$this->inTransaction) throw new \RuntimeException('No transaction to rollback');
+        if(!$this->inTransaction) throw new \RuntimeException('No transaction to commit');
         if(!$this->last_connection) throw new \RuntimeException('Not connected while in transaction');
-		$ret = $this->last_connection->commit();
-		$this->inTransaction = false;
+        try {
+            $ret = $this->last_connection->commit();
+        } finally {
+            $this->inTransaction = false;
+        }
+        assert($this->last_connection == $this->inTransaction);
 		return $this->last_connection->autocommit(true) && $ret;
 	}
 	

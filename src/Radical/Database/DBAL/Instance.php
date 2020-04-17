@@ -345,7 +345,7 @@ class Instance {
         return $e;
     }
 
-	function transaction($method, $retries = 5, $auto_de_nest = false){
+	function transaction($method, $retries = 10, $auto_de_nest = false){
         $savepoint = false;
 		if($this->inTransaction()) {
 			if ($auto_de_nest) {
@@ -364,25 +364,11 @@ class Instance {
 					$this->transactionStart();
 				}
                 $ret = $method();
-				if($savepoint){
-					$this->savepointCommit();
-				}else {
-					$this->transactionCommit();
-				}
-                return $ret;
             }
-			catch(Exception\BeforeCommitException $ex){
-				if($savepoint) {
-					$this->savepointRollback();
-				}else{
-					$this->transactionRollback();
-				}
-				throw $ex->getPrevious();
-			}
-			catch(BeforeTransactionException $ex){
-				throw $ex;
-			}
-			catch(TransactionException $ex){
+            catch(BeforeTransactionException $ex) {
+                throw $ex;
+            }
+            catch(TransactionException $ex){
                 try {
                     if ($savepoint) {
                         $this->savepointRollback();
@@ -406,6 +392,26 @@ class Instance {
                     $this->setPreviousException($inner, $ex);
                     throw $inner;
                 }
+            }
+
+            try {
+                if($savepoint){
+                    $this->savepointCommit();
+                }else {
+                    $this->transactionCommit();
+                }
+                return $ret;
+            }
+            catch(Exception\BeforeCommitException $ex){
+                if($savepoint) {
+                    $this->savepointRollback();
+                }else{
+                    $this->transactionRollback();
+                }
+                throw $ex->getPrevious();
+            }
+            catch(BeforeTransactionException $ex){
+                throw $ex;
             }
 
             //Delay for retry 2 onwards to try and reduce thrashing. 100ms per retry
