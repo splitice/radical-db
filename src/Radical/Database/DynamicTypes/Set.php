@@ -79,12 +79,12 @@ class Set extends DynamicType implements IDynamicType,IDynamicValidate {
 			}else{
 				$this->value = explode(',', $value);
 			}
-		}if(is_array($value)){
+		}elseif(is_array($value)){
 			$this->value = $value;
-		}if(@count($value) == 0){
+		}elseif(@count($value) == 0){
             $this->value = array();
         }else{
-			throw new \Exception('Unexpected value format');
+			throw new \Exception('Unexpected value format got type '.gettype($value));
 		}
 	}
 }
