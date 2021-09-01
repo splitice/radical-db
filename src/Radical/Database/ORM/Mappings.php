@@ -84,10 +84,10 @@ class Mappings {
 		}else{
 			$translated = $databaseField;
 		}
-		
+
 		//translate database format (underscores) to objective format (camel case)
 		for($i=0,$f=strlen($translated);$i<$f;++$i){
-			if($translated{$i} == '_'){
+			if($translated[$i] == '_'){
 				$translated = substr($translated,0,$i).ucfirst(substr($translated,$i+1));
 				--$f;
 			}
@@ -99,8 +99,8 @@ class Mappings {
 	function translateToDatabase($objectiveField,$prefix=true){
 		//translate camelcase to underscore format
 		for($i=0,$f = strlen($objectiveField);$i<$f;++$i){
-			if(ctype_upper($objectiveField{$i})){
-				$objectiveField = substr($objectiveField,0,$i).'_'.strtolower($objectiveField{$i}).substr($objectiveField,$i+1);
+			if(ctype_upper($objectiveField[$i])){
+				$objectiveField = substr($objectiveField,0,$i).'_'.strtolower($objectiveField[$i]).substr($objectiveField,$i+1);
 				++$f;
 				++$i;
 			}

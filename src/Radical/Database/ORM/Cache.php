@@ -90,7 +90,9 @@ class Cache {
 			if($key === null){
 				$key = \Radical\DB::getInstance()->getDb().'_'.crc32(__FILE__);
 			}
-			self::$pool->set($key, self::$data);
+            if(Server::isProduction()) {
+                self::$pool->set($key, self::$data);
+            }
 		}
 	}
 }

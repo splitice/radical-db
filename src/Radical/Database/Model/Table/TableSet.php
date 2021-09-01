@@ -92,15 +92,15 @@ class TableSet extends \Radical\Basic\Arr\Object\IncompleteObject {
         return $this;
     }
     function resultProcess($function){
-	    if($this->resultAdjustment){
+	    /*if($this->resultAdjustment){
 	        $existing = $this->resultAdjustment;
             $this->resultAdjustment = function($r) use($function, $existing){
                 $existing($r);
                 $function($r);
             };
-        }else {
-            $this->resultAdjustment = $function;
-        }
+        }else {*/
+        $this->resultAdjustment = $function;
+        //}
     }
     protected function _resultProcess($r){
 	    if($this->resultAdjustment){
@@ -227,7 +227,7 @@ class TableSet extends \Radical\Basic\Arr\Object\IncompleteObject {
 		if(is_numeric($this->count)){
 			return $this->count;
 		}
-		if($this->count === null && !$this->data){
+		if($this->count === null && $this->data === null){
 			if($group = $this->sql->group()){
 				return $this->preload();
 			}

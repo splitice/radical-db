@@ -89,7 +89,7 @@ class DynamicTableInstance {
 	}
 	
 	function _get($var){
-		$var{0} = strtolower($var{0});
+		$var[0] = strtolower($var[0]);
 		return $this->$var;
 	}
 	

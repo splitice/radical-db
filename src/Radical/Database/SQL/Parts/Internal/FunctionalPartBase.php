@@ -13,7 +13,7 @@ abstract class FunctionalPartBase extends ArrayPartBase {
 	
 	function toSQL(){
 		if(count($this->data) == 0){
-			return 'FALSE';
+			return '=FALSE';
 		}
 		return static::PART_NAME.'('.\Radical\DB::A($this->data).')';
 	}

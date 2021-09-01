@@ -52,6 +52,13 @@ abstract class Table implements ITable, \JsonSerializable {
 	public $orm;
 	protected $_store = array();
 
+	function _property($k){
+        $property = $k;
+        if(is_numeric($property[0])){
+            $property = "_$property";
+        }
+        return $k;
+    }
 
     /**
      * @return int|string|array
@@ -139,9 +146,9 @@ abstract class Table implements ITable, \JsonSerializable {
 	}
 
 	private function process_field($field){
-		if($field{0} == '*'){
+		if($field[0] == '*'){
 			$field = static::TABLE_PREFIX.substr($field,1);
-		}elseif($field{0} == '~'){
+		}elseif($field[0] == '~'){
 			$mapped = substr($field,1);
 			if(!isset($this->orm->reverseMappings[$mapped])){
 				throw new \Exception('Could not find mapping for: '.$mapped);
@@ -177,9 +184,12 @@ abstract class Table implements ITable, \JsonSerializable {
                 throw new ValidationException('Couldnt set ' . $field . ' to ' . $value);
             }
         }
+
+
+        $property = $this->_property($field);
 		
 		//Set field
-		$vRef = &$this->$field;
+		$vRef = &$this->$property;
 		if($vRef instanceof IDynamicType){
 			$vRef->setValue($value);
 		}else{
@@ -202,7 +212,8 @@ abstract class Table implements ITable, \JsonSerializable {
 		$translated = $this->orm->mappings[$field];
 		
 		//Get data
-		$ret = $this->$translated;
+        $property = $this->_property($translated);
+		$ret = $this->$property;
 		
 		//Want an object?
 		if($object && isset($this->orm->relations[$field]) && !is_object($ret)){
@@ -211,7 +222,7 @@ abstract class Table implements ITable, \JsonSerializable {
 			$c = $relation->getTableReference();
 			if($c){
 				$c = $c->getClass();
-				$this->$translated = $ret = $c::fromId($ret);
+				$this->$property = $ret = $c::fromId($ret);
 			}
 		}
 		if(!$object && is_object($ret) && !($ret instanceof IDynamicType)){
@@ -219,7 +230,11 @@ abstract class Table implements ITable, \JsonSerializable {
 		}
 		return $ret;
 	}
-	
+
+	protected function _preload_get_new(TableReferenceInstance $ref, $fields){
+        return $ref->getNew($fields, true);
+    }
+
 	protected function _handleResult($in_param){
 		$in = $in_param;
 		$store = !empty($in['__store']);
@@ -230,7 +245,9 @@ abstract class Table implements ITable, \JsonSerializable {
 
 		foreach($this->orm->mappings as $k=>$v){
 			if(isset($in[$k])){
-				$this->$v = $in[$k];
+
+                $property = $this->_property($v);
+				$this->$property = $in[$k];
 				if($store){
 					$this->_store[$v] = $in[$k];
 				}
@@ -258,7 +275,7 @@ abstract class Table implements ITable, \JsonSerializable {
         }
 
         foreach($to_set as $k=>$v){
-            $target = $v['ref']->getNew($v['fields'], true);
+            $target = $this->_preload_get_new($v['ref'], $v['fields']);
 
 		    if($v instanceof WeakCacheableTable) {
                 Table\TableCache::Add($target);
@@ -278,17 +295,19 @@ abstract class Table implements ITable, \JsonSerializable {
 		//Load data into table
 		if($in instanceof DBAL\Row || $prefix){
 			$this->_handleResult($in);
-		}elseif(is_array($in)){
-			foreach($in as $k=>$v){
-				$this->$k = $v;
-				if(is_object($v)){
-                    if($v instanceof Table){
-					    $in[$k] = $v->getId();
-                    }else{
+		}elseif(is_array($in)) {
+            foreach ($in as $k => $v) {
+                $this->$k = $v;
+                if (is_object($v)) {
+                    if ($v instanceof Table) {
+                        $in[$k] = $v->getId();
+                    } else {
                         $in[$k] = $v;
                     }
                 }
-			}
+            }
+        } else if($in instanceof Table) {
+
 		}else{
 			throw new \Exception('Cant create table with this data');
 		}
@@ -308,7 +327,10 @@ abstract class Table implements ITable, \JsonSerializable {
 		} elseif ($v instanceof IDynamicType) {
             return;
         }
-        $this->$field = $dT::fromDatabaseModel($v, $dynamicTypeValue['extra'], $this, $field);
+
+
+        $property = $this->_property($field);
+        $this->$property = $dT::fromDatabaseModel($v, $dynamicTypeValue['extra'], $this, $field);
 	}
 	
 	private function _dynamicType(){
@@ -323,8 +345,9 @@ abstract class Table implements ITable, \JsonSerializable {
 		$ret = array();
 		foreach($this->orm->mappings as $k=>$mapped){
 			$v = null;
-			if(isset($this->$mapped)){
-				$v = $this->$mapped;
+            $property = $this->_property($mapped);
+			if(isset($this->$property)){
+				$v = $this->$property;
 				if(is_object($v) && isset($this->orm->relations[$k])){
 					$v = $v->getSQLField($this->orm->relations[$k]->getColumn());
 				}
@@ -410,8 +433,7 @@ abstract class Table implements ITable, \JsonSerializable {
 		if($inTransaction){
 			\Radical\DB::transactionManager()->registerBeforeCommit(function(){$this->validate('delete');});
 		}else{
-			$self = $this;
-			return \Radical\DB::transaction(function() use($self){
+			return \Radical\DB::transaction(function(){
 				return $this->delete();
 			});
 		}
@@ -467,37 +489,40 @@ abstract class Table implements ITable, \JsonSerializable {
 		return $id;
 	}
 	protected function call_get_member($actionPart,$a){
+        $property = $this->_property($actionPart);
 		$relations = $this->orm->relations;
 		$rm = $this->orm->reverseMappings;
 		if(isset($rm[$actionPart])) {
 			$dbName = $rm[$actionPart];
-			if (isset($relations[$dbName]) && !is_object($this->$actionPart)) {
+			if (isset($relations[$dbName]) && !is_object($this->$property)) {
 				$class = $relations[$dbName]->getTableClass();
 				if (isset($a[0]) && $a[0] == 'id') {
-					$ret = &$this->$actionPart;
+					$ret = &$this->$property;
 					if (is_object($ret)) {
 						$ret = $this->_getId();
 					}
 				} else {
 				    if(isset($a[0]) && $a[0] == 'light'){
 				        /** @var Table $ret */
-				        $ret = new $class(array($class::ID => $this->$actionPart));
+				        $ret = new $class(array($class::ID => $this->$property));
 				        $ret->read_only(true);
 				        return $ret;
                     }
-					$withUpdate = $a == 'update' || $a == 'for_update';
-					$this->$actionPart = $class::fromId($this->$actionPart, $withUpdate);
+				    if($this->$property !== null) {
+                        $withUpdate = $a == 'update' || $a == 'for_update';
+                        $this->$property = $class::fromId($this->$property, $withUpdate);
+                    }
 				}
 			}
 		}
-		if(isset($a[0]) && $a[0] == 'id' && is_object($this->$actionPart)){
-            if($this->$actionPart instanceof Table){
-			    $ret = $this->$actionPart->getId();
+		if(isset($a[0]) && $a[0] == 'id' && is_object($this->$property)){
+            if($this->$property instanceof Table){
+			    $ret = $this->$property->getId();
             }else{
-                $ret = (string)$this->$actionPart;
+                $ret = (string)$this->$property;
             }
 		}else{
-			$ret = &$this->$actionPart;
+			$ret = &$this->$property;
 		}
 		return $ret;
 	}
@@ -521,7 +546,7 @@ abstract class Table implements ITable, \JsonSerializable {
 		if($ret !== null){
 			return $ret;
 		}
-		
+
 		$forUpdate = isset($a[0]) && ($a[0] == 'update' || $a[0] == 'for_update');
 		
 		//Get Class
@@ -588,7 +613,7 @@ abstract class Table implements ITable, \JsonSerializable {
 			throw new \BadMethodCallException('Relationship doesnt exist: unable to relate');
 		}
 		
-		throw new \BadMethodCallException('Relationship doesnt exist: unkown table');
+		throw new \BadMethodCallException('Relationship doesnt exist: unknown table "'.$className.'"');
 	}
 	public function fields(){
 		return array_keys($this->orm->reverseMappings);
@@ -596,25 +621,26 @@ abstract class Table implements ITable, \JsonSerializable {
 	protected function call_set_value($actionPart,$value){
         $hookData = array('actionPart' => $actionPart, 'value' => $value);
         $this->call_action('call_set_before', $hookData);
+        $property = $this->_property($actionPart);
 		if(isset($this->orm->reverseMappings[$actionPart])){		
 			//Is this key a dynamic type?
 			if(isset($this->orm->dynamicTyping[$actionPart])){
 				if($value instanceof IDynamicType){//Have we been given a dynamic type?
-					$this->$actionPart = $value;
-				}elseif(is_object($this->$actionPart) && $this->$actionPart instanceof IDynamicType){//Do we already have the key set as a dynamic type?
-					if($value !== null || $this->$actionPart instanceof INullable){//can be set, set value
-						$this->$actionPart->setValue($value);
+					$this->$property = $value;
+				}elseif(is_object($this->$property) && $this->$property instanceof IDynamicType){//Do we already have the key set as a dynamic type?
+					if($value !== null || $this->$property instanceof INullable){//can be set, set value
+						$this->$property->setValue($value);
 					}else{//Else replace (used for null)
-						$this->$actionPart = $value;
+						$this->$property = $value;
 					}
 				}elseif($value !== null || CoreInterface::oneof($this->orm->dynamicTyping[$actionPart]['var'], 'Radical\\Database\\DynamicTypes\\INullable')){
 					$var = $this->orm->dynamicTyping[$actionPart]['var'];
-					$this->$actionPart = $var::fromUserModel($value,$this->orm->dynamicTyping[$actionPart]['extra'],$this,$actionPart);
+					$this->$property = $var::fromUserModel($value,$this->orm->dynamicTyping[$actionPart]['extra'],$this,$actionPart);
 				}else{//else set to null
-					$this->$actionPart = null;
+					$this->$property = null;
 				}
 			}else{
-				$this->$actionPart = $value;
+				$this->$property = $value;
 			}
             $this->call_action('call_set_after', $hookData);
 			return $this;
@@ -630,12 +656,12 @@ abstract class Table implements ITable, \JsonSerializable {
 			//get the action part
 			$actionPart = substr($m,3);
 			$className = $actionPart;
-			$actionPart{0} = strtolower($actionPart{0});
+			$actionPart[0] = strtolower($actionPart[0]);
 			
 			//if we have the action part from the database
 			if(isset($this->orm->reverseMappings[$actionPart])){
 				return $this->call_get_member($actionPart,$a);
-			}elseif($actionPart{strlen($actionPart)-1} == 's'){//Get related objects (foward)
+			}elseif($actionPart[strlen($actionPart)-1] == 's'){//Get related objects (foward)
 				//Remove the pluralising s from the end
 				$className = substr($className,0,-1);
 				
@@ -645,7 +671,7 @@ abstract class Table implements ITable, \JsonSerializable {
 			}
 		}elseif(0 === substr_compare($m,'set',0,3)){
 			$actionPart = substr($m,3);
-			$actionPart{0} = strtolower($actionPart{0});
+			$actionPart[0] = strtolower($actionPart[0]);
 			if(count($a) != 0){
 				return $this->call_set_value($actionPart, $a[0]);
 			}else{
@@ -746,7 +772,7 @@ abstract class Table implements ITable, \JsonSerializable {
 		//prefix
 		$prefixedFields = array();
 		foreach($fields as $k=>$f){
-			if($k{0} == '*') {
+			if($k[0] == '*') {
 				$k = static::TABLE_PREFIX.substr($k,1);
 			}
 			if($f instanceof Table){
@@ -840,7 +866,8 @@ abstract class Table implements ITable, \JsonSerializable {
 	}
 
 	function changed($field){
-		$theValue = $this->$field;
+        $property = $this->_property($field);
+		$theValue = $this->$property;
 		if($theValue instanceof IDynamicType){
 			$theValue = $theValue->toSQL();
 		}
@@ -853,7 +880,10 @@ abstract class Table implements ITable, \JsonSerializable {
 	function validate($operation = null){
 		if($operation == 'delete') return;
 		foreach($this->orm->dynamicTyping as $k=>$v){
-			$v = $this->$k;
+
+            $property = $this->_property($k);
+
+			$v = $this->$property;
 			if($v instanceof IDynamicValidate)
 				$v->DoValidate((string)$v,$k);
 		}

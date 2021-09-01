@@ -210,11 +210,11 @@ class Instance {
 	 * @param string|int $str
 	 * @return string
 	 */
-	function escape($str) {
+	function escape($str, $forceString = false) {
 		if ($str === null) {
 			return 'NULL';
 		}
-		if(is_numeric($str) && ((int)$str) == $str){
+		if(!$forceString && is_numeric($str) && ((int)$str) == $str){
 			return $str;
 		}
 		if (is_array ( $str )) {
@@ -379,6 +379,7 @@ class Instance {
                     $this->setPreviousException($inner, $ex);
                     throw $inner;
                 }
+                continue;
 			}
 			catch (\Exception $ex) {
                 try {

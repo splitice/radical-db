@@ -73,17 +73,17 @@ class Set extends DynamicType implements IDynamicType,IDynamicValidate {
 		return DB::e($this->__toString());
 	}
 	function setValue($value){
-		if(@count($value) == 0){
-			$this->value = array();
-		}elseif(is_string($value)){
+		if(is_string($value)){
 			if(empty($value)){
 				$this->value = array();
 			}else{
 				$this->value = explode(',', $value);
 			}
-		}elseif(is_array($value)){
+		}if(is_array($value)){
 			$this->value = $value;
-		}else{
+		}if(@count($value) == 0){
+            $this->value = array();
+        }else{
 			throw new \Exception('Unexpected value format');
 		}
 	}

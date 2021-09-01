@@ -19,7 +19,7 @@ class MysqlStaticConnector implements IMysqlConnector
 	private $port;
 	private $compression;
 
-	function __construct($host, $user, $pass, $db = null, $port = 3306, $compression=true)
+	function __construct($host, $user, $pass, $db = null, $port = 3306, $compression=false)
 	{
 		$this->host = $host;
 		$this->user = $user;
@@ -28,6 +28,10 @@ class MysqlStaticConnector implements IMysqlConnector
 		$this->port = $port;
 		$this->compression = $compression;
 	}
+
+	function pick(){
+	    return array('host'=>$this->host, 'user'=>$this->user, 'pass'=>$this->pass, 'db'=>$this->db, 'port'=>$this->port);
+    }
 
 	function getDb()
 	{
@@ -50,7 +54,7 @@ class MysqlStaticConnector implements IMysqlConnector
 		return ($this->mysqli && @$this->mysqli->ping());
 	}
 
-	function getConnection(MySQLConnection $connection, $inTransaction)
+	function getConnection(MySQLConnection $connection = null, $inTransaction)
 	{
 		if($this->isConnected()){
 			return $this->mysqli;
@@ -65,8 +69,11 @@ class MysqlStaticConnector implements IMysqlConnector
 			$this->user, $this->pass, $this->db, $this->port,
 			null, $this->compression?MYSQLI_CLIENT_COMPRESS:0 );
 
+        $this->mysqli->set_charset ('utf8');
+
 		if (! $connection_status) {
 			$this->mysqli = null;
+            if(!$connection) throw new \RuntimeException('Connection Error');
 			throw new ConnectionException ( $connection->__toString(), $connection->error() );
 		}
 

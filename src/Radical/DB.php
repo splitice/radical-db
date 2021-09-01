@@ -97,6 +97,7 @@ class DB extends DBAL\SQLUtils {
 	}
 
 	static function toTimeStamp($i) {
+	    if(!is_numeric($i)) throw new \RuntimeException("$i is not numeric");
 		return gmdate ( "Y-m-d H:i:s", $i );
 	}
 

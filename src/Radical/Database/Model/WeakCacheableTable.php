@@ -16,7 +16,7 @@ class WeakCacheableTable extends Table {
             ksort($id);
             $id = implode('|',$id);
         }
-        $id .= '|'.get_called_class();
+        $id .= '|'.static::TABLE;
         return $id;
     }
 

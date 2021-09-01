@@ -28,10 +28,10 @@ class Enum extends DynamicType implements IDynamicType,IDynamicValidate {
 	
 	static function fromDatabaseModel($value, array $extra, ITable $model, $field = null){
         if($field === null){
-            throw new \Exception("A field must be supplied to instanciate a Set type");
+            throw new \Exception("A field must be supplied to instanciate a Enum type");
         }
+        /** @var \Radical\Database\SQL\Parse\Types\Enum $data */
 		$data = $model->orm->validation->request_data($model->orm->reverseMappings[$field]);
-		die(var_dump($data));
 		$keys = $data->getValues();
 		return new static($value,$extra, $keys);
 	}
@@ -43,7 +43,7 @@ class Enum extends DynamicType implements IDynamicType,IDynamicValidate {
 		return $this->value;
 	}
 	function toSQL(){
-		return DB::e($this->__toString());
+		return DB::escape($this->__toString(), true);
 	}
 	function setValue($value){
 		$this->value = $value;

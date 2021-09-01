@@ -32,6 +32,7 @@ class MysqlMultiPicker implements IMysqlConnector
 
 	function pick($in_transaction)
 	{
+	    // prepare
 		if(!$this->is_init) {
 			$this->init();
 			$this->is_init = true;
@@ -40,6 +41,7 @@ class MysqlMultiPicker implements IMysqlConnector
 		$last_used = $this->last_used;
 
 		if ($this->errored) {
+		    // If the last query errored ignore that server going forward
 			$this->ignored[json_encode($last_used)] = true;
 			$error = $this->errored;
 			$this->errored = false;
@@ -52,7 +54,7 @@ class MysqlMultiPicker implements IMysqlConnector
 			if ($last_used) {
 				//No longer faulty, clear the ignored table
 				if (isset($this->ignored[json_encode($last_used)])) {
-					$this->ignored = array();
+					unset($this->ignored[json_encode($last_used)]);
 				}
 
 				return $this->last_used = $last_used;
@@ -135,15 +137,21 @@ class MysqlMultiPicker implements IMysqlConnector
 		return $this->mysqli->select_db($db);
 	}
 
-	function getConnection(MySQLConnection $connection, $inTransaction)
+	function getConnection(MySQLConnection $connection = null, $inTransaction)
 	{
 		$first = true;
 		$continue = true;
 		$server = null;
 		$mysqli = null;
 
+		$potentials = [];
 		do {
+		    // Do server pick
 			$server = $this->pick($inTransaction);
+			if(in_array($server, $potentials)){
+			    throw new \RuntimeException('Unable to find suitable server');
+            }
+            $potentials[] = $server;
 
 			if ($first && $server == $this->last_connected && $this->mysqli) {
 			    $now = time();
@@ -162,6 +170,7 @@ class MysqlMultiPicker implements IMysqlConnector
 				$server['user'], $server['pass'], $this->db, $server['port'],
 				null, empty($server['compression']) ? 0: MYSQLI_CLIENT_COMPRESS );
 
+            $mysqli->set_charset ('utf8');
 			if (!$connection_status) {
 				if (!$this->do_error()) {
 					$continue = false;
@@ -181,6 +190,7 @@ class MysqlMultiPicker implements IMysqlConnector
                     $row = $res->fetch_assoc();
                     if($row['Value'] != 4) {
                         $continue = true;
+                        $this->ignored[json_encode($server)] = true;
                     }
                 }
 			}
@@ -188,6 +198,7 @@ class MysqlMultiPicker implements IMysqlConnector
 
 		if (! $connection_status) {
 			$this->mysqli = null;
+			if(!$connection) throw new \RuntimeException('Connection Error');
 			throw new ConnectionException ( $connection->__toString(), $connection->error() );
 		}
 

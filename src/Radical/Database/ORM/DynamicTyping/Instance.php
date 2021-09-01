@@ -2,6 +2,7 @@
 namespace Radical\Database\ORM\DynamicTyping;
 
 use lithium\analysis\Inspector;
+use Radical\Core\Libraries;
 use Radical\Database\Model\TableReferenceInstance;
 
 class Instance {
@@ -9,7 +10,15 @@ class Instance {
 	
 	function __construct(TableReferenceInstance $table){
 		$class = $table->getClass();
-		$this->map = $this->getMap($class);
+		$map = array();
+        foreach(Inspector::parents($class) as $pClass){
+            if(Libraries::isProjectSpace($pClass)){
+                $map += $this->getMap($pClass);
+            }
+        }
+        $map += $this->getMap($class);
+        $this->map = $map;
+
 	}
 	private function getMap($class){
 		$properties = Inspector::properties($class,array('public'=>false));
@@ -20,7 +29,7 @@ class Instance {
 		foreach($properties as $p){
 			if(($p->getModifiers() & \ReflectionProperty::IS_PROTECTED) == \ReflectionProperty::IS_PROTECTED){
 				$name = $p->getName();
-				if($name{0} != '_'){
+				if($name[0] != '_'){
 					$fields[$name] = Docblock::comment($p->getDocComment());
 				}
 			}
@@ -42,7 +51,7 @@ class Instance {
 		$var = $var[0];
 		
 		//Prefix if not given
-		if((strpos($var, '\\') === false) || ($var{0} != '\\' && !class_exists($var))){
+		if((strpos($var, '\\') === false) || ($var[0] != '\\' && !class_exists($var))){
 			$var = '\\Radical\\Database\\DynamicTypes\\'.$var;
 		}
 		

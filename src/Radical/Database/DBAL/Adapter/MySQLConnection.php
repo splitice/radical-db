@@ -144,6 +144,11 @@ class MySQLConnection implements IConnection {
 		if(!$sql){
 			throw new \Exception('Empty Query');
 		}
+
+        /*echo $sql, "\r\n";
+		if(strpos($sql, 'SELECT `port`.* FROM `port` WHERE `port_id`') !== false){
+		    debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+        }*/
 		
 		return @$this->connect()->query ( $sql );
 	}

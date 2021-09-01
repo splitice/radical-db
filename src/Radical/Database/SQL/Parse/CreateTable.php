@@ -39,7 +39,7 @@ class CreateTable extends CollectionObject {
 				$this->Add($m[2],new CreateTable\ColumnStatement($m[2], $type, $m[4], $attributes));
 			}
 		}
-		if(preg_match("/^\\s*PRIMARY KEY\\s*\\(\\s*([^\\)]*)\\s*\\)(?:\\,|$)/m", $sql, $_matches)){
+		if(preg_match("/^\\s*PRIMARY KEY\\s*\\(\\s*([^\\)]*)\\s*\\)(?: USING BTREE)?(?:\\,|$)/m", $sql, $_matches)){
 			$this->indexes->Add('PRIMARY',new CreateTable\PrimaryKey($_matches[1]));
 		}
 	}

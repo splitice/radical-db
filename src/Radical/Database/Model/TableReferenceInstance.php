@@ -2,10 +2,13 @@
 namespace Radical\Database\Model;
 
 use Radical\Core\CoreInterface;
+use Radical\Database\IToSQL;
 use Radical\Database\ORM;
 use Radical\Database\SQL\DeleteStatement;
 use Radical\Database\SQL\InsertStatement;
 use Radical\Database\SQL\LockTable;
+use Radical\Database\SQL\Parts\Expression\Comparison;
+use Radical\Database\SQL\Parts\Expression\IComparison;
 use Radical\Database\SQL\UnLockTable;
 use Radical\Database\SQL\UpdateStatement;
 
@@ -123,9 +126,15 @@ class TableReferenceInstance {
 	/**
 	 * @return \Radical\Database\SQL\SelectStatement
 	 */
-	function select($fields = '*',$type = ''){
+	function select($fields = '*',$type = '', $where = null){
 		$class = '\\Radical\\Database\\SQL\\'.$type.'SelectStatement';
-		return new $class($this->getTable(),$fields);
+		if($fields instanceof IComparison){
+		    $where = $fields;
+		    $fields = '*';
+        }
+		$ret = new $class($this->getTable(),$fields);
+		$ret->where($where);
+		return $ret;
 	}
 	
 	function update($values = array(),$where = array()){
